@@ -1,0 +1,9 @@
+{
+  "version": 3,
+  "configurePresets": [
+    {"name":"windows", "generator":"Visual Studio 17 2022", "architecture":"x64", "binaryDir":"${sourceDir}/build"},
+    {"name":"core", "generator":"Visual Studio 17 2022", "architecture":"x64", "binaryDir":"${sourceDir}/build-core", "cacheVariables":{"SMARTMIDI_SIMULATOR":"OFF"}}
+  ],
+  "buildPresets": [{"name":"windows", "configurePreset":"windows", "configuration":"Release"}],
+  "testPresets": [{"name":"windows", "configurePreset":"windows", "configuration":"Release", "output":{"outputOnFailure":true}}]
+}
