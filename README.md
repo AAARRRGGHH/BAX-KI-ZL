@@ -1,4 +1,4 @@
-﻿# PROJECT BAX:KI:ZL
+# PROJECT BAX:KI:ZL
 
 ## [Download V1.0 for Windows — Simulator + Firmware Installer](https://github.com/AAARRRGGHH/BAX-KI-ZL/releases/download/v1.0/BAX-KI-ZL-Companion-Windows.zip)
 
@@ -19,8 +19,11 @@ A pocket-sized musical playground for exploring melodies, harmonies and rhythms 
 | **Kinetic** | Flick balls around a circular field. Boundary hits become scale notes; size, speed and lifetime shape the music. Optional quantization and clock sync. |
 | **Keyboard** | A circular scale keyboard with octave gestures and two-finger playing. |
 
-![Diatonic chords](docs/manual-assets/chords.png)
-![Kinetic play](docs/manual-assets/kinetic-play.png)
+![Chords — diatonic chord pads](docs/manual-assets/chords.png)
+![Arpeggiator — Anchor pattern](docs/manual-assets/arp-pattern.png)
+![Kinetic — interactive musical playground](docs/manual-assets/kinetic-play.png)
+![Keyboard — scale keyboard](docs/manual-assets/keyboard.png)
+![Travel synth settings — waveform, attack and release](docs/manual-assets/setup-travel.png)
 
 Also included: a built-in **Travel synth**, **USB/BLE-MIDI**, incoming MIDI clock, **eight named save slots** for all four modes, global or independent scales, persistent settings and a selectable UI color.
 
