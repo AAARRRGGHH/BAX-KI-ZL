@@ -16,6 +16,7 @@ namespace {
 qmi8658_dev_t sensor{};
 uint32_t now_ms() { return uint32_t(esp_timer_get_time()/1000); }
 }
+uint32_t MotionReset::esp_time(){return now_ms();}
 bool MotionReset::start(i2c_master_bus_handle_t bus) {
  // Same bus/address as the official 1.75C 04_Immersive_block example.
  auto error=qmi8658_init(&sensor,bus,QMI8658_ADDRESS_HIGH);
@@ -75,6 +76,7 @@ void MotionReset::run() {
        if(last_sample) max_gap=std::max(max_gap,uint32_t(sampled_at-last_sample));
        last_sample=sampled_at; ++samples;
        last_x=x/1000.f; last_y=y/1000.f; last_z=z/1000.f;
+       {std::lock_guard<std::mutex> lock(sample_mutex_);sample_={{last_x,last_y,last_z}};sampled_at_=sampled_at;}
        max_acceleration=std::max(max_acceleration,std::sqrt(last_x*last_x+last_y*last_y+last_z*last_z));
        // QMI +Z points out of the component/display side (board photo + datasheet).
        // Driver returns mg, not g, when accel_unit_mps2 is false.

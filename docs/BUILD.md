@@ -1,6 +1,6 @@
-# Build BAX:KI:ZL V1.0
+# Build BAX:KI:ZL V1.1
 
-Most users should use the [prebuilt Windows Companion](https://github.com/AAARRRGGHH/BAX-KI-ZL/releases/download/v1.0/BAX-KI-ZL-Companion-Windows.zip). These instructions are for modifying the source.
+Most users should use the [prebuilt Windows Companion](https://github.com/AAARRRGGHH/BAX-KI-ZL/releases/download/v1.1/BAX-KI-ZL-Companion-Windows.zip). These instructions are for modifying the source.
 
 ## Windows simulator
 

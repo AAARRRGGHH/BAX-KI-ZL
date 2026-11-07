@@ -1,13 +1,13 @@
 <section class="cover">
-<img src="manual-assets/boot.png" alt="V1.0 boot screen in the simulator" />
+<img src="manual-assets/boot.png" alt="V1.1 boot screen in the simulator" />
 <p class="cover-modes">Chords · Arpeggiator · Kinetic · Keyboard</p>
-<p class="edition">V1.0 – 11/07/2026</p>
+<p class="edition">V1.1 – 11/07/2026</p>
 <p class="cover-hardware">Waveshare ESP32-S3-Touch-AMOLED-1.75C · SKU 33691</p>
 </section>
 
 A small instrument for exploring melodies, harmonies and rhythmic patterns, using its built-in travel synth or MIDI to play other instruments.
 
-The boot screen shows **V1.0** at the bottom: V uses the UI accent and 1.0 is white. It fades with the logo. The centre selection double-tap window is 400 ms.
+The boot screen shows **V1.1** at the bottom: V uses the UI accent and 1.1 is white. It fades with the logo. The centre selection double-tap window is 400 ms.
 
 ### How this project was created
 
@@ -352,7 +352,7 @@ Kinetic saves settings as they change, but **not balls or their trajectories**. 
 
 ## 7. Setup and the Travel synth
 
-**Hold PWR** to open Setup. Its pages cycle through **MIDI → UI COLOR → TRAVEL MODE → GLOBAL SCALE → LOAD / SAVE → MIDI**. During a session, opening Setup returns to its last page. After restarting the device, it begins at MIDI.
+**Hold PWR** to open Setup. Its pages cycle through **MIDI → MOTION CC → UI COLOR → TRAVEL MODE → GLOBAL SCALE → LOAD / SAVE → MIDI**. During a session, opening Setup returns to its last page. After restarting the device, it begins at MIDI.
 
 You can edit several pages before confirming. **A new short PWR press saves all Setup values** and returns to the previous play mode.
 
@@ -366,6 +366,28 @@ With MIDI CLOCK ON, measured tempo appears below: the number in white and **BPM*
 
 ![MIDI: Channel 1 with clock reception OFF.](manual-assets/setup-midi.png)
 ![MIDI: clock reception enabled, showing simulated 120 BPM.](manual-assets/setup-clock.png)
+
+### MOTION CC — movement as modulation
+
+This page is immediately after MIDI. Tilting the device controls two assignable MIDI controllers alongside the notes in **all four play modes**. **TRAVEL MODE must be OFF** for external MIDI output; the internal synth does not respond to these CCs.
+
+| Setting | Function | Default |
+|---|---|---|
+| MIDI CHANNEL | Independent channel 1–16 for both motion axes, separate from the note channel. | 1 |
+| X-AXIS | Tilt left/right; OFF or CC 1–119. X direction is inverted. | OFF |
+| Y-AXIS | Tilt forward/back; OFF or CC 1–119. | OFF |
+| CALIBRATE | Store the current comfortable playing position as the center. | Level reference |
+
+All three wheels **wrap in both directions**. After CC 119, the axis wheels return to OFF; CC 1 is conventional modulation. The CC number selects a parameter at the receiving instrument; the transmitted CC value ranges from 0 to 127. CCs 120–127 are special channel commands and are not offered.
+
+**To set it up:** disable TRAVEL MODE, assign one or both axes, select their MIDI CHANNEL, and hold the device still in your preferred playing position. Tap **CALIBRATE**. Success shows **CALIBRATED** with a subtle colored background; both text and background return to normal after three seconds. **Press PWR briefly to save and close** Setup. Assign the same channel and CC at your receiving instrument or MIDI-to-CV module.
+
+The calibrated center sends **64**. Tilting **45° in either direction** reaches 0 or 127; farther movement is clamped. A **2° center dead zone** and smoothing reduce jitter. There is no live value display. Changes are sent at up to 25 updates per second per axis, with a periodic refresh of the current value.
+
+Both axes can work together. Menus and invalid or stale sensor samples pause output. During play, modulation is independent of the played note and MIDI clock. **Channel, CC assignments and confirmed calibration survive shutdown**; LOAD / SAVE and face-down reset leave them unchanged. A previously saved experimental PITCH assignment becomes OFF: Pitch Bend is not included in this version.
+
+![MOTION CC: both axes initially set to OFF.](manual-assets/setup-motion.png)
+![Example: X controls CC 1, Y controls CC 74; calibration has been confirmed.](manual-assets/setup-motion-example.png)
 
 ### UI COLOR
 
@@ -439,7 +461,7 @@ A slot contains:
 
 **Live Kinetic balls and their trajectories are not saved.** Older slots remain readable. Because they contain no Kinetic state, loading them uses the new Kinetic defaults, with the shared scale when GLOBAL SCALE is ON. Save the slot again to capture your desired Kinetic configuration.
 
-**UI color, MIDI channel, MIDI CLOCK and Travel synth settings remain global** and are not replaced by loading a slot. The current clock-reception setting takes precedence. Sounding notes are released before loading; old clock, transport and pattern positions are not replayed. After leaving Setup, an internal Arpeggio starts with the loaded note selection; externally clocked playback waits for Start/Continue.
+**UI color, MIDI channel, MIDI CLOCK, Motion CC settings including calibration, and Travel synth settings remain global** and are not replaced by loading a slot. The current clock-reception setting takes precedence. Sounding notes are released before loading; old clock, transport and pattern positions are not replayed. After leaving Setup, an internal Arpeggio starts with the loaded note selection; externally clocked playback waits for Start/Continue.
 
 Playing and editing later **does not overwrite your saved slots automatically**. Automatic preservation of the current working state is separate.
 
@@ -578,6 +600,8 @@ Its physical size on your monitor also depends on screen resolution and Windows 
 | Lower bezel button or B | BOOT: hold three seconds to exit the simulator after its countdown. |
 | + / − | Raise/lower Keyboard octave. |
 | Esc | Discard an open Setup or selection screen. |
+| Ctrl + arrow keys | Adjust virtual tilt by 3° to test Motion CC in the simulator. |
+| Ctrl + Home | Return the virtual device to a level pose. |
 | Ctrl + Shift + R | Trigger the current Chords/Arpeggiator/Kinetic reset action, without simulating the actual motion detector. |
 | RESET at the top left | The same reset action; visible only when something can actually be reset outside a menu. |
 
@@ -588,6 +612,7 @@ Travel Mode has local audio output. Simulator MIDI is currently a **console prev
 | Symptom | First checks |
 |---|---|
 | No speaker sound | Travel Mode ON? Confirmed Setup with a new short PWR press? |
+| No motion modulation | Travel OFF, axis enabled, correct independent MIDI channel, receiver CC assignment and confirmed calibration? |
 | No MIDI in Ableton | Travel OFF, usable USB/BLE MIDI endpoint, Track input enabled, correct channel, instrument and track monitoring? |
 | Arpeggiator silent | Any notes selected? External clock enabled but transport not started? Allow several steps with low Probability. |
 | Arpeggiator gaps | Check Probability, BLOCKSIZE and pattern choices. Very high octaves can exceed MIDI's pitch range. |
@@ -603,12 +628,12 @@ Connection resets and menu transitions may release notes or require resting fing
 
 ### Edition and limits
 
-This manual describes the **firmware V1.0, source/build state of 11/07/2026**. Images come from isolated simulator captures using the default accent; personal settings and slots are not changed.
+This manual describes the **firmware V1.1, source/build state of 11/07/2026**. Images come from isolated simulator captures using the default accent; personal settings and slots are not changed.
 
 The project initiator has tested playing, Travel synth, USB-MIDI, WIDI, Kinetic (including earlier experiments with up to twelve balls), two-finger playing and Ableton clock on the hardware. Automated tests supplement these observations, not a complete hardware validation. Reported immediate response is not a measured latency figure.
 
 Companion has automated UI, file, flash-workflow and Windows embedding tests. This manual does not claim a successful physical flash through the new Companion interface. A speaker click during the hardware reset used for flashing cannot be ruled out and has been accepted as a limitation.
 
-Not yet included: motion CC/pitchbend, a custom ESP-NOW/DIN bridge, Hum-to-MIDI or automatic key changes. CME WIDI serves as an off-the-shelf BLE/DIN receiver. This manual does not promise those future features.
+Not yet included: pitchbend, a custom ESP-NOW/DIN bridge, Hum-to-MIDI or automatic key changes. CME WIDI serves as an off-the-shelf BLE/DIN receiver. This manual does not promise those future features.
 
 Developer build instructions are in the source project's `README.md` and `firmware/README.md`. Additional technical documents are in `docs`; some are German.

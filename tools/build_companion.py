@@ -127,7 +127,7 @@ def main():
         archive.write(release_exe, 'BAX-KI-ZL-Companion.exe')
         archive.write(source, source.name)
         archive.write(ROOT / 'docs/COMPANION.md', 'README.md')
-        archive.write(ROOT / 'docs/RELEASE_V1_0.md', 'RELEASE_NOTES.md')
+        archive.write(ROOT / 'docs/RELEASE_V1_1.md', 'RELEASE_NOTES.md')
         for language in ('DE', 'EN'):
             manual = ROOT / f'docs/BAX-KI-ZL_Manual_{language}.pdf'
             if manual.is_file():

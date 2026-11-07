@@ -51,6 +51,19 @@ void enqueue(InputEvent event) {
  if(xQueueSend(input_events,&event,0)!=pdTRUE) ++lost_events;
 }
 class NvsSettings: public sm::Settings {
+public:
+ sm::MotionSettings load_motion()override{
+  sm::MotionBytes bytes{};sm::MotionSettings s;nvs_handle_t h;if(nvs_open("smartmidi",NVS_READONLY,&h)!=ESP_OK)return s;
+  size_t size=bytes.size();const auto err=nvs_get_blob(h,"motion_v1",bytes.data(),&size);nvs_close(h);
+  if(err==ESP_OK && size==bytes.size())sm::unpack_motion(bytes,s);
+  return s;
+ }
+ bool save_motion(sm::MotionSettings s)override{
+  if(!sm::valid_motion(s))return false;
+  const auto bytes=sm::pack_motion(s);nvs_handle_t h;if(nvs_open("smartmidi",NVS_READWRITE,&h)!=ESP_OK)return false;
+  auto err=nvs_set_blob(h,"motion_v1",bytes.data(),bytes.size());if(err==ESP_OK)err=nvs_commit(h);nvs_close(h);return err==ESP_OK;
+ }
+private:
  bool runtime(sm::PerformanceSettings& value,sm::ArpPreset& arp,sm::bounce::Settings* kinetic=nullptr) {
    nvs_handle_t h; if(nvs_open("smartmidi",NVS_READONLY,&h)!=ESP_OK) return false;
    std::array<uint8_t,48> bytes{}; size_t size=bytes.size();
@@ -356,6 +369,9 @@ extern "C" void app_main() {
  ESP_ERROR_CHECK(bsp_display_lock(uint32_t(-1)));
  lv_timer_create([](lv_timer_t* timer) {
    auto* ui=static_cast<sm::Ui*>(lv_timer_get_user_data(timer));
+   std::array<float,3> acceleration{};uint32_t sampled_at=0;
+   if(motion.sample(acceleration,sampled_at))ui->motion_sample(acceleration[0],acceleration[1],acceleration[2],sampled_at);
+   ui->motion_tick(uint32_t(esp_timer_get_time()/1000));
    const bool allow_pose_reset=ui->can_reset_play_mode();
    motion.enable(allow_pose_reset,ui->is_chords()?1:ui->is_arpeggiator()?2:ui->is_bounce()?3:0);
    if(motion.take_reset() && allow_pose_reset) {

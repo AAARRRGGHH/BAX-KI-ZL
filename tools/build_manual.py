@@ -91,7 +91,7 @@ edition_date = '07/11/2026' if args.lang == 'DE' else '11/07/2026'
 
 document = (f'<!doctype html><html lang="{args.lang.lower()}"><head><meta charset="utf-8">'
             '<meta name="viewport" content="width=device-width,initial-scale=1">'
-            f'<title>BAX:KI:ZL | Manual {args.lang} | V1.0 | {edition_date}</title><style>' + css + '</style>'
+            f'<title>BAX:KI:ZL | Manual {args.lang} | V1.1 | {edition_date}</title><style>' + css + '</style>'
             '</head><body><article>' + body + '</article></body></html>')
 output = ROOT / f"docs/BAX-KI-ZL_Manual_{args.lang}.html"
 output.write_text(document, encoding="utf-8", newline="\n")

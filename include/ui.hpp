@@ -1,5 +1,6 @@
 #pragma once
 #include "music.hpp"
+#include "motion_cc.hpp"
 #include "lvgl.h"
 #include "theme.hpp"
 #include "synth.hpp"
@@ -66,7 +67,7 @@ class Ui {
  void refresh_arp_notes();
  void settle_arp_selectors();
  bool arp_wheel_busy() const;
- bool selector_bounded(int column) const { return column>=4 && (column<23 || column>=31) && column!=7 && column!=8 && column!=11 && column!=13 && column!=16; }
+ bool selector_bounded(int column) const { return column>=4 && column<33 && (column<23 || column>=31) && column!=7 && column!=8 && column!=11 && column!=13 && column!=16; }
  PerformanceOutput* output_=nullptr;
  lv_obj_t *wheel_=nullptr,*selection_=nullptr,*root_=nullptr,*mode_=nullptr,*error_=nullptr;
  lv_obj_t* octave_label_=nullptr;
@@ -106,6 +107,12 @@ class Ui {
  void slot_action(int action);
  static void slot_event(lv_event_t* event);
  lv_obj_t *global_panel_=nullptr,*global_toggle_=nullptr,*global_status_=nullptr,*global_title_=nullptr;
+ uint32_t motion_now_=0;
+ MotionCc motion_cc_; MotionSettings motion_draft_{};
+ lv_obj_t *motion_panel_=nullptr,*motion_title_=nullptr,*motion_calibrate_=nullptr,*motion_calibrate_text_=nullptr;
+ bool motion_calibrated_feedback_=false;uint32_t motion_calibrated_at_=0;
+ void build_motion();void update_motion();bool calibrate_motion();
+ void reset_motion_feedback();void update_motion_feedback();
  Setup setup_draft_{};
  lv_obj_t *setup_=nullptr,*setup_title_=nullptr,*channel_panel_=nullptr,
    *color_panel_=nullptr,*color_marker_=nullptr,*color_value_=nullptr,*setup_error_=nullptr,*scale_title_=nullptr;
@@ -116,7 +123,7 @@ class Ui {
  int clock_tempo_display_=-1;
  void update_clock_tempo(bool force=false);
  struct SetupGesture { lv_indev_t* input=nullptr; lv_point_t start{}; bool color=false,moved=false; lv_indev_t* completed=nullptr; bool channel=false; } setup_gesture_;
- std::vector<uint32_t> color_pixels_;
+ std::vector<uint16_t> color_pixels_;
  lv_image_dsc_t color_image_{};
  void build_setup();
  lv_obj_t *travel_panel_=nullptr,*travel_toggle_=nullptr,*travel_title_=nullptr,*travel_status_=nullptr;
@@ -127,6 +134,7 @@ class Ui {
  void build_waveforms();
  void sync_travel();
  int selector_count(int column) const;
+ void update_color_preview();
  void update_setup();
  void set_setup_page(int page);
  void set_setup_color(lv_point_t point);
@@ -150,6 +158,7 @@ class Ui {
  struct MenuFrame { std::vector<uint32_t> pixels; lv_image_dsc_t image{}; lv_obj_t* object=nullptr; };
  std::array<MenuFrame,10> slot_dialog_frames_{};
  std::array<MenuFrame,3> slot_frames_{};
+ std::array<MenuFrame,3> motion_frames_{};
  std::array<MenuFrame,10> menu_frames_{};
  void selection_layout();
  std::array<MenuFrame,14> arp_frames_{};
@@ -161,13 +170,13 @@ class Ui {
  lv_color_t accent(float x) const;
  lv_image_dsc_t wheel_image_{};
  int rendered_count_=-1; uint16_t rendered_playable_=0,rendered_selected_=0;
- std::array<lv_obj_t*,33> selector_views_{};
+ std::array<lv_obj_t*,36> selector_views_{};
  struct Selector { Ui* owner=nullptr; lv_indev_t* input=nullptr; int column=0,offset=0,target=0,last_y=0,start_y=0,step=60,half_height=119,font_size=32,center=233,dirty_width=0; uint32_t last_move=0; int velocity=0,drag_remainder=0; bool dragged=false; };
- std::array<Selector,33> selectors_{};
+ std::array<Selector,36> selectors_{};
  void set_selector_offset(int column,int offset);
  void animate_selector(int column,int target);
  void draw_selector(lv_layer_t* layer,int column);
- std::array<int,33> row_offsets_=[] { std::array<int,33> a{}; a.fill(-99999); return a; }();
+ std::array<int,36> row_offsets_=[] { std::array<int,36> a{}; a.fill(-99999); return a; }();
  static void wheel_event(lv_event_t* e);
  static void selection_event(lv_event_t* e);
  void draw(lv_layer_t* layer);
@@ -176,6 +185,8 @@ class Ui {
  void touch(lv_event_code_t code);
 public:
  Ui(Application& a,MidiRouter& m,PerformanceOutput* output=nullptr):app_(a),note_(m,a.current),arp_(m),chord_(m),router_(m),output_(output){}
+ void motion_sample(float x,float y,float z,uint32_t now){motion_cc_.sample(x,y,z,now);}
+ void motion_tick(uint32_t now){motion_now_=now;motion_cc_.configure(app_.motion);motion_cc_.update(now,!setup_open_ && !app_.selecting && !is_bounce_menu() && !booting() && !shutting_down_ && !app_.setup.travel,[this](MidiEvent e){return router_.control(e);});}
  void performance_tick(uint64_t now);
  void midi_realtime(uint8_t status,uint64_t now);void midi_disconnected();
  bool is_bounce()const{return bounce_mode_;}

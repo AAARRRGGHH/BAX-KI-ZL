@@ -12,6 +12,7 @@ inline bool encode_ble_midi(MidiEvent e,uint32_t milliseconds,BleMidiPacket& p) 
  switch(e.kind) {
  case MidiKind::NoteOn: status=0x90; break;
  case MidiKind::NoteOff: status=0x80; break;
+ case MidiKind::ControlChange:
  case MidiKind::AllNotesOff: status=0xb0; break;
  default: return false;
  }

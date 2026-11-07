@@ -6,7 +6,7 @@ inline bool encode_usb_midi(MidiEvent event,UsbMidiPacket& packet) {
  if(event.channel<1 || event.channel>16 ||
     (event.kind!=MidiKind::AllNotesOff && (event.note>127 || event.velocity>127))) return false;
  uint8_t status=event.kind==MidiKind::NoteOn?0x90:event.kind==MidiKind::NoteOff?0x80:0xb0;
- if(event.kind!=MidiKind::NoteOn && event.kind!=MidiKind::NoteOff && event.kind!=MidiKind::AllNotesOff) return false;
+ if(event.kind!=MidiKind::NoteOn && event.kind!=MidiKind::NoteOff && event.kind!=MidiKind::AllNotesOff && event.kind!=MidiKind::ControlChange) return false;
  packet={uint8_t(status>>4),uint8_t(status|(event.channel-1)),
    event.kind==MidiKind::AllNotesOff?uint8_t(123):event.note,
    event.kind==MidiKind::AllNotesOff?uint8_t(0):event.velocity};

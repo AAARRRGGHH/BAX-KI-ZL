@@ -1,6 +1,6 @@
 # BAX:KI:ZL Companion for Windows 11 (x64)
 
-The portable application includes the current firmware for the **Waveshare
+The V1.1 portable application includes the current firmware for the **Waveshare
 ESP32-S3-Touch-AMOLED-1.75C, SKU 33691, 32 MB flash**, plus the matching simulator.
 Extract the ZIP and run `BAX-KI-ZL-Companion.exe`. No Python, ESP-IDF, Visual Studio
 or installation is required on the target PC. The EXE also runs on its own.
@@ -90,3 +90,11 @@ backup or NVS erase, error handling, English UI diagnostics, proportional resizi
 outline rendering and persistent simulator settings. The Windows integration test
 uses a real embedded SDL child window to verify reset, right-click and power-off.
 A real hardware flash through this interface still requires device testing.
+
+## Motion CC in the simulator
+
+The Setup page after MIDI provides a separate MIDI CHANNEL, X-AXIS and Y-AXIS
+wheels (OFF or CC 1–119), and CALIBRATE. Ctrl+arrow keys adjust virtual tilt by
+3°; Ctrl+Home returns to level. Disable Travel Mode to preview outgoing CCs in
+the simulator log. On the Waveshare, tilt the device instead. Motion settings
+and calibration are global and survive shutdown independently of save slots.

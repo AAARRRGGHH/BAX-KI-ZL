@@ -1,10 +1,10 @@
 # PROJECT BAX:KI:ZL
 
-## [Download V1.0 for Windows — Simulator + Firmware Installer](https://github.com/AAARRRGGHH/BAX-KI-ZL/releases/download/v1.0/BAX-KI-ZL-Companion-Windows.zip)
+## [Download V1.1 for Windows — Simulator + Firmware Installer](https://github.com/AAARRRGGHH/BAX-KI-ZL/releases/download/v1.1/BAX-KI-ZL-Companion-Windows.zip)
 
 **Try it without hardware. If you like it, flash your Waveshare from the same app.**
 
-[English manual (PDF)](docs/BAX-KI-ZL_Manual_EN.pdf) · [Deutsches Handbuch (PDF)](docs/BAX-KI-ZL_Manual_DE.pdf) · [Release notes](docs/RELEASE_V1_0.md)
+[English manual (PDF)](docs/BAX-KI-ZL_Manual_EN.pdf) · [Deutsches Handbuch (PDF)](docs/BAX-KI-ZL_Manual_DE.pdf) · [Release notes](docs/RELEASE_V1_1.md)
 
 ![PROJECT BAX:KI:ZL](assets/boot_logo.svg)
 
@@ -25,7 +25,7 @@ A pocket-sized musical playground for exploring melodies, harmonies and rhythms 
 ![Keyboard — scale keyboard](docs/manual-assets/keyboard.png)
 ![Travel synth settings — waveform, attack and release](docs/manual-assets/setup-travel.png)
 
-Also included: a built-in **Travel synth**, **USB/BLE-MIDI**, incoming MIDI clock, **eight named save slots** for all four modes, global or independent scales, persistent settings and a selectable UI color.
+Also included: a built-in **Travel synth**, **USB/BLE-MIDI**, incoming MIDI clock, **eight named save slots** for all four modes, global or independent scales, persistent settings a selectable UI color and **tilt-to-MIDI CC**.
 
 ## Try it on your PC
 
@@ -58,12 +58,29 @@ Companion installs its prebuilt firmware and verifies the write. It does not com
 
 The manuals cover playing, saving/loading, connections, clock and power controls. Battery and clock values in screenshots are simulated examples.
 
+## Motion CC
+
+Tilt the pebble to control effects while playing any of the four modes. In
+**Setup → MOTION CC**, choose an independent **MIDI CHANNEL** and assign
+**X-AXIS** and **Y-AXIS** to **OFF or CC 1–119**. Both axes default to OFF.
+Hold it comfortably, tap **CALIBRATE**, then press PWR briefly to save.
+
+The center sends 64; ±45° covers 0–127, with smoothing and a small dead zone.
+Assignments and calibration survive shutdown and stay separate from song slots.
+Switch **Travel Mode OFF** for external MIDI, then map the CCs at your instrument,
+DAW or MIDI-to-CV module. Pitch Bend is not included.
+
+![Motion CC — X assigned to CC 1, Y to CC 74, calibration confirmed](docs/manual-assets/setup-motion-example.png)
+
+The simulator supports **Ctrl+arrow keys** for virtual tilt and **Ctrl+Home** to
+return to level. The color selector also responds more efficiently in V1.1.
+
 ## Manuals and source builds
 
 | Language | PDF | Editable source |
 |---|---|---|
-| English | [V1.0 user manual](docs/BAX-KI-ZL_Manual_EN.pdf) | [Markdown](docs/MANUAL_EN.md) |
-| Deutsch | [V1.0 Bedienungsanleitung](docs/BAX-KI-ZL_Manual_DE.pdf) | [Markdown](docs/MANUAL_DE.md) |
+| English | [V1.1 user manual](docs/BAX-KI-ZL_Manual_EN.pdf) | [Markdown](docs/MANUAL_EN.md) |
+| Deutsch | [V1.1 Bedienungsanleitung](docs/BAX-KI-ZL_Manual_DE.pdf) | [Markdown](docs/MANUAL_DE.md) |
 
 [Build from source](docs/BUILD.md) · [Companion details](docs/COMPANION.md)
 

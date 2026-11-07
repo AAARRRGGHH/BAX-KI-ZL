@@ -42,7 +42,7 @@ void Ui::show_boot_logo() {
  lv_obj_remove_flag(boot_version_,LV_OBJ_FLAG_SCROLLABLE);lv_obj_remove_flag(boot_version_,LV_OBJ_FLAG_CLICKABLE);
  lv_obj_set_style_text_font(boot_version_,&barlow_28,0);
  auto* prefix=lv_label_create(boot_version_);lv_label_set_text(prefix,"V");lv_obj_set_style_text_color(prefix,accent(.5f),0);
- auto* number=lv_label_create(boot_version_);lv_label_set_text(number,"1.0");lv_obj_set_style_text_color(number,lv_color_hex(0xffffff),0);
+ auto* number=lv_label_create(boot_version_);lv_label_set_text(number,"1.1");lv_obj_set_style_text_color(number,lv_color_hex(0xffffff),0);
  lv_obj_align(boot_version_,LV_ALIGN_BOTTOM_MID,0,-22);
  boot_logo_opacity_=255;
  lv_obj_add_event_cb(boot_logo_art_,[](lv_event_t* event) {

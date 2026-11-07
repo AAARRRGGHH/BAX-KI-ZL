@@ -41,6 +41,6 @@ public:
  }
  bool travel() const { return setup_.travel; }
  bool ready() const { return ready_; }
- bool send(MidiEvent event) override { return setup_.travel?audio_.send(event):midi_.send(event); }
+ bool send(MidiEvent event) override { if(event.kind==MidiKind::ControlChange && setup_.travel)return true; return setup_.travel?audio_.send(event):midi_.send(event); }
 };
 }

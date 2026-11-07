@@ -50,7 +50,7 @@ int main(){
  // Conversely, opening a menu after the press began does not auto-confirm it.
  ui.power_button(ButtonEvent::Press);ui.open();pump(20);ui.power_button(ButtonEvent::Release);CHECK(ui.is_selecting());power();CHECK(!ui.is_selecting() && !ui.is_chords());
  // SAVE/LOAD/DELETE use explicit touch buttons. PWR never acts in a dialog.
- ui.open_setup();for(int page=0;page<4;++page)swipe(233,page<2?390:410,150,page<2?390:410);CHECK(ui.setup_page()==4);
+ ui.open_setup();for(int page=0;page<5;++page)swipe(233,page==1?263:page<=2?390:410,150,page==1?263:page<=2?390:410);CHECK(ui.setup_page()==4);
  MusicPreset saved;click(155,370);ui.scroll(86,233,-1);power();CHECK(ui.is_setup() && has_cancel(lv_screen_active()) && !storage.load_slot(0,saved));
  ui.power_button(ButtonEvent::Press);ui.power_button(ButtonEvent::Hold);ui.power_button(ButtonEvent::Release);CHECK(has_cancel(lv_screen_active()) && !storage.load_slot(0,saved));click(310,370);
  click(155,370);ui.scroll(86,233,-1);click(155,370);CHECK(storage.load_slot(0,saved));

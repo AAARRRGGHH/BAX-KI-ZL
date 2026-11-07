@@ -95,6 +95,7 @@ void Ui::cancel_touch() {
  tap_pending_=false;
 }
 void Ui::reset_midi_session() {
+ motion_cc_.invalidate();
  stop_bounce_output();
  arp_.suspend(true);
  // Do not adopt a finger still resting on the screen as a fresh note after reconnect.
@@ -115,6 +116,7 @@ void Ui::invalidate_segment(int index) {
  if(!segment_pixels_[index].empty()) lv_obj_invalidate_area(wheel_,&segment_bounds_[index]);
 }
 void Ui::update_feedback() {
+ update_motion_feedback();
  update_bounce();
  if(power_off_visible_) poll_power_off_contacts();
  chord_.retry();
@@ -567,14 +569,15 @@ void Ui::set_selector_offset(int column,int offset) {
    lv_obj_invalidate_area(selector_views_[column],&area);
  } else lv_obj_invalidate(selector_views_[column]);
 }
-int Ui::selector_count(int column) const { return (column>=23 && column<=30)?37:column==22?music_slot_count:column==19?(app_.setup.receive_clock?int(chord_strum_choices.size()):26):column==18?3:column==17?chord_variant_count:column==16?chord_scale_count:column>=6?arp_selector_count(column):column>=4?10:column==3?waveform_count:column==2?16:column==1?int(modes().size()):12; }
+int Ui::selector_count(int column) const { return column>=33?(column==33?16:120):(column>=23 && column<=30)?37:column==22?music_slot_count:column==19?(app_.setup.receive_clock?int(chord_strum_choices.size()):26):column==18?3:column==17?chord_variant_count:column==16?chord_scale_count:column>=6?arp_selector_count(column):column>=4?10:column==3?waveform_count:column==2?16:column==1?int(modes().size()):12; }
 void Ui::animate_selector(int column,int target) {
  auto& s=selectors_[column]; lv_anim_delete(&s,nullptr);
  const int count=selector_count(column);
  s.target=int(std::lround(float(target)/s.step))*s.step;
  if(selector_bounded(column)) s.target=std::clamp(s.target,0,(count-1)*s.step);
  const int option=(s.target/s.step%count+count)%count;
- if(column>=23 && column<=30) slot_draft_.name[column-23]=slot_characters[option];
+ if(column>=33) {if(column==33)motion_draft_.channel=option+1;else motion_draft_.cc[column-34]=motion_target(option);}
+ else if(column>=23 && column<=30) slot_draft_.name[column-23]=slot_characters[option];
  else if(column==22) {
    if(slot_index_!=option) { slot_index_=option; update_slot(); }
  }
@@ -639,7 +642,8 @@ void Ui::draw_selector(lv_layer_t* layer,int column) {
    }
    lv_draw_label_dsc_t text; lv_draw_label_dsc_init(&text);
    char option_text[64]{};
-   if(column>=23 && column<=30) { option_text[0]=slot_characters[option]; text.text=option_text; text.text_local=1; }
+   if(column>=33) {if(column==33)std::snprintf(option_text,sizeof(option_text),"%d",option+1);else if(!option)std::snprintf(option_text,sizeof(option_text),"OFF");else std::snprintf(option_text,sizeof(option_text),"CC %d",option);text.text=option_text;text.text_local=1;}
+   else if(column>=23 && column<=30) { option_text[0]=slot_characters[option]; text.text=option_text; text.text_local=1; }
    else if(column==22) { text.text=slot_names_[option].c_str(); }
    else if(column==19) {
      if(app_.setup.receive_clock) {
@@ -679,7 +683,8 @@ void Ui::selection_event(lv_event_t* e) {
  int column=-1;
  for(size_t i=0;i<self->selector_views_.size();++i) if(lv_event_get_target_obj(e)==self->selector_views_[i]) column=int(i);
  if(column<0) return;
- if(column>=23 && column<=30) { if(!self->setup_open_ || self->slot_dialog_!=1) return; }
+ if(column>=33) {if(!self->setup_open_ || self->setup_page_!=5)return;}
+ else if(column>=23 && column<=30) { if(!self->setup_open_ || self->slot_dialog_!=1) return; }
  else if(column==22) { if(!self->setup_open_ || self->setup_page_!=4 || self->slot_dialog_) return; }
  else if(column==17 || column==18) { if(!self->is_editing_chord() || !self->app_.selecting || self->setup_open_) return; }
  else if(column==16 || column==19) { if(!self->chord_mode_ || !self->app_.selecting || self->setup_open_ || self->is_editing_chord()) return; }
@@ -756,8 +761,8 @@ void Ui::scroll(int x,int y,int delta) {
    return;
  }
  if(setup_open_) {
-   for(int column:{2,3,4,5,22}) {
-     if(setup_page_!=(column==22?4:column==2?0:2)) continue;
+   for(int column:{2,3,4,5,22,33,34,35}) {
+     if(setup_page_!=(column>=33?5:column==22?4:column==2?0:2)) continue;
      lv_area_t bounds; lv_obj_get_coords(selector_views_[column],&bounds);
      if(x>=bounds.x1 && x<=bounds.x2 && y>=bounds.y1 && y<=bounds.y2) animate_selector(column,selectors_[column].target-delta*selectors_[column].step);
    }

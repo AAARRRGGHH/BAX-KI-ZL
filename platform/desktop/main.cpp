@@ -101,7 +101,8 @@ struct ConsoleMidi : sm::MidiTransport {
  int ons=0,offs=0,last_on=-1,last_off=-1,last_channel=1;
  bool send(sm::MidiEvent e) override {
    if(e.kind==sm::MidiKind::NoteOn) { ++ons; last_on=e.note; last_channel=e.channel; } if(e.kind==sm::MidiKind::NoteOff) { ++offs; last_off=e.note; }
-   if(e.kind!=sm::MidiKind::AllNotesOff) std::printf("MIDI preview: %s ch=%u note=%u velocity=%u\n",e.kind==sm::MidiKind::NoteOn?"on":"off",e.channel,e.note,e.velocity); return true;
+   if(e.kind==sm::MidiKind::ControlChange)std::printf("MIDI CC: ch=%u cc=%u value=%u\n",e.channel,e.note,e.velocity);
+   else if(e.kind!=sm::MidiKind::AllNotesOff) std::printf("MIDI preview: %s ch=%u note=%u velocity=%u\n",e.kind==sm::MidiKind::NoteOn?"on":"off",e.channel,e.note,e.velocity); return true;
  }
 };
 void diagnostic(int button,sm::ButtonEvent e,void* context) { std::printf("BUTTON %d %s\n",button+1,e==sm::ButtonEvent::Press?"PRESS":e==sm::ButtonEvent::Hold?"HOLD":"RELEASE"); std::fflush(stdout); if(context) static_cast<sm::Ui*>(context)->button(button,e); }
@@ -125,6 +126,7 @@ int brightness(int x,int y) {
 }
 }
 int main(int argc,char** argv) {
+ float motion_tilt_x=0,motion_tilt_y=0;
  SDL_SetMainReady(); bool smoke=false,panel_rendering=false,selector_render_test=false,controls_test=false; uintptr_t parent_window=0; std::string manual_dir; SDL_Keycode key1=SDLK_PLUS,key2=SDLK_MINUS;
  for(int i=1;i<argc;++i) {
    if(std::string(argv[i])=="--parent-window" && i+1<argc) {
@@ -197,7 +199,7 @@ int main(int argc,char** argv) {
    settings_path=(std::filesystem::path(manual_dir)/"capture-settings.cfg").string();
  }
  if(smoke || controls_test || selector_render_test || !manual_dir.empty()) {
-   std::filesystem::remove(settings_path); std::filesystem::remove(settings_path+".slots");std::filesystem::remove(settings_path+".bounce");
+   std::filesystem::remove(settings_path); std::filesystem::remove(settings_path+".slots");std::filesystem::remove(settings_path+".bounce");std::filesystem::remove(settings_path+".motion");
    for(int slot=1;slot<=sm::music_slot_count;++slot) std::filesystem::remove(settings_path+".slot"+std::to_string(slot));
  }
  sm::FileSettings settings(settings_path);
@@ -236,7 +238,7 @@ int main(int argc,char** argv) {
  std::printf("Settings: %s\nButtons: %s / %s; hold >=600ms. Console MIDI preview only.\n",settings_path.c_str(),key1_name.c_str(),key2_name.c_str());
  // Sample synthetic contacts explicitly: a slow render during a concurrent build
  // must not consume a whole short test press before the input timer can run.
- auto pump=[&](int ms) { auto end=SDL_GetTicks()+ms; do { poll_power(); const auto now=uint64_t(SDL_GetTicks())*1000; ui.performance_tick(now); lv_indev_read(pointer); lv_indev_read(second_pointer); lv_timer_handler(); SDL_Delay(5); } while(SDL_GetTicks()<end); };
+ auto pump=[&](int ms) { auto end=SDL_GetTicks()+ms; do { poll_power(); const auto now=uint64_t(SDL_GetTicks())*1000; ui.motion_sample(std::sin(motion_tilt_x*.0174532925f)*std::cos(motion_tilt_y*.0174532925f),std::sin(motion_tilt_y*.0174532925f),std::cos(motion_tilt_x*.0174532925f)*std::cos(motion_tilt_y*.0174532925f),uint32_t(now/1000));ui.motion_tick(uint32_t(now/1000));ui.performance_tick(now); lv_indev_read(pointer); lv_indev_read(second_pointer); lv_timer_handler(); SDL_Delay(5); } while(SDL_GetTicks()<end); };
  // Keep the existing three-mode regression sequences explicit. Bounce has
  // its own integration test, including the actual four-mode PWR order.
  auto legacy_cycle=[&](){ui.toggle_arpeggiator();if(ui.is_bounce())ui.toggle_arpeggiator();};
@@ -311,10 +313,22 @@ int main(int argc,char** argv) {
    const auto shot=[&](const char* name) { pump(60);corner_reset=ui.has_resettable_state();corner_accent=app.setup.accent; capture((std::filesystem::path(manual_dir)/(std::string(name)+".bmp")).string().c_str()); };
    const auto click=[&](int x,int y) { mouse_x=x; mouse_y=y; mouse_down=true; pump(40); mouse_down=false; pump(60); };
    const auto twice=[&]() { click(233,233); click(233,233); };
+   bool captured_motion=false;
    const auto swipe=[&](int x,int y,int end_x,int end_y) {
-     mouse_x=x; mouse_y=y; mouse_down=true; pump(30);
-     for(int i=1;i<=6;++i) { mouse_x=x+(end_x-x)*i/6; mouse_y=y+(end_y-y)*i/6; pump(20); }
-     mouse_down=false; pump(80);
+     for(int pass=0;pass<2;++pass){
+       const int sy=ui.is_setup() && ui.setup_page()==5?263:y,ey=ui.is_setup() && ui.setup_page()==5?263:end_y;
+       mouse_x=x; mouse_y=sy; mouse_down=true; pump(30);
+       for(int i=1;i<=6;++i) { mouse_x=x+(end_x-x)*i/6; mouse_y=sy+(ey-sy)*i/6; pump(20); }
+       mouse_down=false; pump(80);
+       if(!ui.is_setup() || ui.setup_page()!=5)break;
+       if(!captured_motion){
+         shot("setup-motion");
+         ui.scroll(142,300,-1);ui.scroll(324,300,-74);pump(240);
+         click(233,388);shot("setup-motion-example");
+         ui.scroll(142,300,1);ui.scroll(324,300,74);pump(240);
+         captured_motion=true;
+       }
+     }
    };
    const auto save_setup=[&]() { legacy_power(sm::ButtonEvent::Press); legacy_power(sm::ButtonEvent::Release); pump(60); };
    shot("boot"); pump(3650); shot("chords");
@@ -517,8 +531,14 @@ int main(int argc,char** argv) {
    ui.change_octave(-3); app.current={0,10}; ui.refresh(); pump(60);
    const int swipe_ons=transport.ons;
    auto swipe=[&](int x1,int y1,int x2,int y2) {
-     mouse_x=x1; mouse_y=y1; mouse_down=true; pump(40);
-     mouse_x=x2; mouse_y=y2; pump(40); mouse_down=false; pump(40);
+     for(int pass=0;pass<2;++pass){
+       const bool skip_motion=ui.is_setup() && ui.setup_page()==5;
+       const int sx=skip_motion?233:x1,ex=skip_motion?(x2<x1?150:316):x2;
+       const int sy=skip_motion?263:y1,ey=skip_motion?263:y2;
+       mouse_x=sx; mouse_y=sy; mouse_down=true; pump(40);
+       mouse_x=ex; mouse_y=ey; pump(40); mouse_down=false; pump(40);
+       if(!ui.is_setup() || ui.setup_page()!=5)break;
+     }
    };
    mouse_x=233; mouse_y=233; mouse_down=true; pump(40);
    mouse_y=160; pump(40); if(ui.octave()!=5) result=52;
@@ -1336,6 +1356,13 @@ int main(int argc,char** argv) {
        };
        if(matches(key1)) down[0]=e.type==SDL_KEYDOWN;
        if(matches(key2)) down[1]=e.type==SDL_KEYDOWN;
+       if(e.type==SDL_KEYDOWN && (e.key.keysym.mod&KMOD_CTRL)){
+         if(e.key.keysym.sym==SDLK_LEFT)motion_tilt_x=std::max(-60.f,motion_tilt_x-3);
+         if(e.key.keysym.sym==SDLK_RIGHT)motion_tilt_x=std::min(60.f,motion_tilt_x+3);
+         if(e.key.keysym.sym==SDLK_UP)motion_tilt_y=std::max(-60.f,motion_tilt_y-3);
+         if(e.key.keysym.sym==SDLK_DOWN)motion_tilt_y=std::min(60.f,motion_tilt_y+3);
+         if(e.key.keysym.sym==SDLK_HOME)motion_tilt_x=motion_tilt_y=0;
+       }
        if(e.key.keysym.sym==SDLK_p) power_down=e.type==SDL_KEYDOWN;
        if(e.key.keysym.sym==SDLK_b) boot_key=e.type==SDL_KEYDOWN;
        if(e.type==SDL_KEYDOWN && !e.key.repeat && e.key.keysym.sym==SDLK_r && (e.key.keysym.mod&KMOD_CTRL) && (e.key.keysym.mod&KMOD_SHIFT)) ui.reset_play_mode();
@@ -1347,7 +1374,7 @@ int main(int argc,char** argv) {
    for(int b=0;b<2;++b) buttons.update(b,down[b],SDL_GetTicks(),diagnostic,&ui);
    poll_power();
    const auto now=uint64_t(SDL_GetTicks())*1000;
-   ui.performance_tick(now);
+   ui.motion_sample(std::sin(motion_tilt_x*.0174532925f)*std::cos(motion_tilt_y*.0174532925f),std::sin(motion_tilt_y*.0174532925f),std::cos(motion_tilt_x*.0174532925f)*std::cos(motion_tilt_y*.0174532925f),uint32_t(now/1000));ui.motion_tick(uint32_t(now/1000));ui.performance_tick(now);
    lv_timer_handler(); SDL_Delay(5);
  }
  if(!smoke && !controls_test && !selector_render_test && manual_dir.empty() && !boot.committed && !ui.prepare_shutdown()) std::fprintf(stderr,"Arpeggiator settings could not be saved on simulator exit.\n");

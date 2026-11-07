@@ -17,6 +17,7 @@ void Synth::configure(SynthSettings settings) { if(valid_synth(settings)) { stop
 void Synth::stop() { for(auto& voice:voices_) voice={}; for(auto& tail:tails_) tail={}; tail_frames_.fill(0); }
 int Synth::active_voices() const { int count=0; for(const auto& v:voices_) if(v.note>=0) ++count; return count; }
 void Synth::event(MidiEvent e) {
+ if(e.kind==MidiKind::ControlChange)return;
  if(e.kind==MidiKind::AllNotesOff) { stop(); return; }
  if(e.note>127) return;
  if(e.kind==MidiKind::NoteOff || !e.velocity) {

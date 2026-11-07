@@ -8,11 +8,11 @@ Stand / edition: **7. November / 7 November 2026**.
 | English | [MANUAL_EN.md](MANUAL_EN.md) | [HTML](BAX-KI-ZL_Manual_EN.html) | [PDF](BAX-KI-ZL_Manual_EN.pdf) | `Manual_EN.cmd` |
 
 Beide Fassungen verwenden schwarzen Hintergrund, weißen Text, Cyan-Akzente,
-Barlow und dieselben 39 Simulator-Abbildungen. Der Transparenzhinweis zur
+Barlow und dieselben 41 Simulator-Abbildungen. Der Transparenzhinweis zur
 Zusammenarbeit mit OpenAI Codex steht in beiden Fassungen am Anfang.
 
 Both editions use black pages, white text, cyan accents, embedded Barlow fonts
-and the same 39 simulator illustrations. Both include the project contribution
+and the same 41 simulator illustrations. Both include the project contribution
 and AI-assistance disclosure near the beginning.
 
 ## Screenshots

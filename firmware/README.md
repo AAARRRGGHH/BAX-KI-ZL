@@ -1,4 +1,4 @@
-# BAX:KI:ZL V1.0 firmware
+# BAX:KI:ZL V1.1 firmware
 
 Target: Waveshare ESP32-S3-Touch-AMOLED-1.75C, SKU 33691, 32 MB flash / 8 MB PSRAM.
 

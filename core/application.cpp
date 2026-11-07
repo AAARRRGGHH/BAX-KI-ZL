@@ -1,6 +1,7 @@
 #include "music.hpp"
 namespace sm {
 Application::Application(Settings& s):settings_(s),current(s.load()),draft(current),setup(s.load_setup()),chords(s.load_chords()) {
+ motion=s.load_motion(); if(!valid_motion(motion))motion={};
  if(!valid(current)) current=draft=Selection{};
  if(!valid_setup(setup)) setup={};
  if(!valid(chords)) chords={};

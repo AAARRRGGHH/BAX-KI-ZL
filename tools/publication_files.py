@@ -17,7 +17,7 @@ SOURCE_DIRS = (
     'firmware/main', 'firmware/components', 'firmware/compat',
     'vendor/waveshare-bsp-1.75c',
 )
-DOCS = ('BUILD.md', 'RELEASE_V1_0.md', 'COMPANION.md', 'BOUNCE.md',
+DOCS = ('BUILD.md', 'RELEASE_V1_0.md', 'RELEASE_V1_1.md', 'COMPANION.md', 'BOUNCE.md',
         'MANUAL_DE.md', 'MANUAL_EN.md', 'MANUAL_BUILD.md')
 EXCLUDED_TOOLS = {'cleanup_project.ps1', 'render_chord_piano.py', 'render_chord_listening.py',
                   'render_ripples_listening.py', 'preview_chord_library.py',
@@ -44,15 +44,20 @@ def source_files(manual_artifacts=False):
             files.add(path)
     for name in DOCS:
         files.add(ROOT / 'docs' / name)
-    if manual_artifacts:
-        for language in ('DE', 'EN'):
+    # Manual sources in source archives must be rebuildable without fetching
+    # screenshots separately. PDFs are optional because Companion includes them
+    # once, outside its corresponding-source archive.
+    for language in ('DE', 'EN'):
+        if manual_artifacts:
             files.add(ROOT / 'docs' / f'BAX-KI-ZL_Manual_{language}.pdf')
-            text = (ROOT / 'docs' / f'MANUAL_{language}.md').read_text(encoding='utf-8')
-            files.update(ROOT / 'docs' / relative
-                         for relative in re.findall(r'!\[[^\]]*\]\(([^)]+)\)', text))
-        files.add(ROOT / 'docs/manual-assets/Barlow-OFL.txt')
-        text = (ROOT / 'README.md').read_text(encoding='utf-8-sig')
-        files.update(ROOT / relative for relative in re.findall(r'!\[[^\]]*\]\(([^)]+)\)', text))
+        text = (ROOT / 'docs' / f'MANUAL_{language}.md').read_text(encoding='utf-8')
+        files.update(ROOT / 'docs' / relative
+                     for relative in re.findall(r'!\[[^\]]*\]\(([^)]+)\)', text))
+        files.update(ROOT / 'docs' / relative
+                     for relative in re.findall(r'<img\s+[^>]*src=[\"\']([^\"\']+)[\"\']', text))
+    files.add(ROOT / 'docs/manual-assets/Barlow-OFL.txt')
+    text = (ROOT / 'README.md').read_text(encoding='utf-8-sig')
+    files.update(ROOT / relative for relative in re.findall(r'!\[[^\]]*\]\(([^)]+)\)', text))
     for path in files:
         if not path.is_file():
             raise RuntimeError(f'Missing publication input: {path.relative_to(ROOT)}')

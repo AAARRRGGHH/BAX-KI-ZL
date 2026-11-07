@@ -1,4 +1,5 @@
 #pragma once
+#include "motion_settings.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -63,7 +64,7 @@ inline bool valid(ChordSelection s) {
 struct Note { int pitch_class; int midi; std::string name; };
 std::vector<Note> notes(Selection s, int octave=4);
 enum class MidiRoute:uint8_t { Auto,Usb,Ble };
-enum class MidiKind { NoteOn, NoteOff, AllNotesOff };
+enum class MidiKind { NoteOn, NoteOff, AllNotesOff, ControlChange };
 // fresh_attack is local articulation metadata; USB/BLE encode standard MIDI.
 struct MidiEvent { MidiKind kind; uint8_t channel; uint8_t note; uint8_t velocity; bool fresh_attack=false; };
 struct MidiTransport { virtual ~MidiTransport()=default; virtual bool send(MidiEvent)=0; virtual void set_enabled(bool) {} virtual void set_route(MidiRoute) {} };
@@ -75,6 +76,7 @@ public:
     // Independent schedulers own their Note On/Off ledger; use the shared
     // channel and transport without losing per-event velocity.
     bool auxiliary(MidiEvent event) { std::lock_guard<std::recursive_mutex> lock(mutex_);event.channel=channel_;return transport_.send(event); }
+    bool control(MidiEvent e) { std::lock_guard<std::recursive_mutex> lock(mutex_); return e.kind==MidiKind::ControlChange && transport_.send(e); }
     explicit MidiRouter(MidiTransport& t) : transport_(t) { held_.fill(-1); }
     void press(int source, int note,bool fresh_attack=false); void release(int source); void panic();
     void retry();
@@ -133,6 +135,8 @@ inline std::string music_slot_name(const MusicPreset& p) {
 }
 struct Settings {
  virtual ~Settings()=default; virtual Selection load()=0; virtual bool save(Selection)=0;
+ virtual MotionSettings load_motion() { return {}; }
+ virtual bool save_motion(MotionSettings) { return false; }
  virtual Setup load_setup() { return {}; }
  virtual bool save_setup(Setup) { return false; }
  virtual ChordSelection load_chords() { return {}; }
@@ -156,6 +160,8 @@ class Application {
     bool commit(Selection keyboard,Selection arp,ChordSelection chords,Setup setup);
 public:
     Selection current, draft; bool selecting=false;
+    MotionSettings motion;
+    bool save_motion(MotionSettings s){if(!valid_motion(s))return false;if(s==motion)return true;if(!settings_.save_motion(s))return false;motion=s;return true;}
     Setup setup;
     ChordSelection chords;
     explicit Application(Settings& s);

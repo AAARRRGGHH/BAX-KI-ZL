@@ -5,6 +5,8 @@ class FileSettings : public Settings {
  std::string path_;
 public:
  explicit FileSettings(std::string path):path_(std::move(path)){}
+ MotionSettings load_motion() override;
+ bool save_motion(MotionSettings s) override;
  Selection load() override;
  bool save(Selection s) override;
  Setup load_setup() override;

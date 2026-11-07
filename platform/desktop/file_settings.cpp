@@ -78,6 +78,16 @@ bool write_configuration(const std::string& path,const Configuration& config) {
 #endif
 }
 }
+MotionSettings FileSettings::load_motion(){MotionBytes b{};MotionSettings s;std::ifstream f(path_+".motion",std::ios::binary);if(f.read(reinterpret_cast<char*>(b.data()),b.size()))unpack_motion(b,s);return s;}
+bool FileSettings::save_motion(MotionSettings s){
+ if(!valid_motion(s))return false;const auto path=path_+".motion",tmp=path+".tmp";const auto b=pack_motion(s);
+ {std::ofstream f(tmp,std::ios::binary|std::ios::trunc);f.write(reinterpret_cast<const char*>(b.data()),b.size());f.flush();if(!f)return false;}
+#ifdef _WIN32
+ return MoveFileExA(tmp.c_str(),path.c_str(),MOVEFILE_REPLACE_EXISTING|MOVEFILE_WRITE_THROUGH)!=0;
+#else
+ std::error_code ec;std::filesystem::rename(tmp,path,ec);return !ec;
+#endif
+}
 bounce::Settings FileSettings::load_bounce(){return read_configuration(path_).kinetic;}
 bool FileSettings::save_bounce(bounce::Settings value){if(!bounce::valid_settings(value))return false;auto config=read_configuration(path_);config.kinetic=value;return write_configuration(path_,config);}
 namespace {

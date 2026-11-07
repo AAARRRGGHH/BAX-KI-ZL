@@ -90,12 +90,13 @@ void Ui::build_setup() {
    lv_area_t bounds; lv_obj_get_coords(lv_event_get_target_obj(e),&bounds); d.image_area=bounds;
    lv_draw_image(lv_event_get_layer(e),&d,&bounds);
  },LV_EVENT_DRAW_MAIN,this);
- color_value_=text(color_panel_,"UI COLOR",83,0,300,&barlow_43); lv_obj_center(color_value_);
+ color_value_=text(color_panel_,"UI COLOR",0,0,LV_SIZE_CONTENT,&barlow_43); lv_obj_center(color_value_);
  color_marker_=lv_obj_create(color_panel_); plain(color_marker_); lv_obj_set_size(color_marker_,22,22);
  lv_obj_set_style_radius(color_marker_,11,0); lv_obj_set_style_border_color(color_marker_,lv_color_hex(0xffffff),0);
  lv_obj_set_style_bg_color(color_marker_,lv_color_hex(0xffffff),0); lv_obj_set_style_bg_opa(color_marker_,LV_OPA_COVER,0);
  lv_obj_set_style_border_width(color_marker_,2,0); lv_obj_remove_flag(color_marker_,LV_OBJ_FLAG_CLICKABLE);
  setup_error_=text(setup_,"",83,404,300,&barlow_14);
+ build_motion();
  global_panel_=lv_obj_create(setup_); plain(global_panel_); lv_obj_set_size(global_panel_,466,466); bubble(global_panel_);
  global_title_=text(global_panel_,"GLOBAL SCALE",53,92,360,&barlow_43);
  global_toggle_=lv_switch_create(global_panel_); lv_obj_set_size(global_toggle_,88,42); lv_obj_center(global_toggle_); bubble(global_toggle_);
@@ -184,7 +185,59 @@ void Ui::build_setup() {
  lv_obj_move_foreground(setup_error_);
  lv_obj_add_flag(setup_,LV_OBJ_FLAG_HIDDEN);
 }
+void Ui::build_motion(){
+ motion_panel_=lv_obj_create(setup_);plain(motion_panel_);lv_obj_set_size(motion_panel_,466,466);bubble(motion_panel_);
+ constexpr int screen_center=466/2,axis_offset=91,wheel_width=104,caption_width=158;
+ const std::array<int,3> centers{{screen_center,screen_center-axis_offset,screen_center+axis_offset}};
+ motion_title_=text(motion_panel_,"MOTION CC",53,43,360,&barlow_43);
+ text(motion_panel_,"MIDI CHANNEL",133,104,200,&barlow_24);
+ text(motion_panel_,"X-AXIS",centers[1]-caption_width/2,224,caption_width,&barlow_20);
+ text(motion_panel_,"Y-AXIS",centers[2]-caption_width/2,224,caption_width,&barlow_20);
+ for(int i=0;i<3;++i){
+  const int c=33+i,x=centers[i]-wheel_width/2,y=i==0?132:252,w=wheel_width,h=96,center=y+h/2;
+  auto* view=selector_views_[c]=lv_obj_create(motion_panel_);plain(view);bubble(view);lv_obj_set_pos(view,x,y);lv_obj_set_size(view,w,h);lv_obj_add_flag(view,LV_OBJ_FLAG_CLICKABLE);
+  auto& sel=selectors_[c];sel.owner=this;sel.column=c;sel.step=36;sel.half_height=h/2;sel.center=center;sel.font_size=32;
+  lv_obj_add_event_cb(view,selection_event,LV_EVENT_ALL,this);
+  lv_obj_add_event_cb(view,[](lv_event_t* e){auto* self=static_cast<Ui*>(lv_event_get_user_data(e));for(int c=33;c<36;++c)if(lv_event_get_target_obj(e)==self->selector_views_[c])self->draw_selector(lv_event_get_layer(e),c);},LV_EVENT_DRAW_MAIN,this);
+  make_menu_frame(motion_frames_[i],x,center-24,w,48,24,24,motion_panel_,accent(.5f));
+ }
+ motion_calibrate_=lv_button_create(motion_panel_);plain(motion_calibrate_);bubble(motion_calibrate_);lv_obj_set_pos(motion_calibrate_,128,364);lv_obj_set_size(motion_calibrate_,210,48);lv_obj_set_style_radius(motion_calibrate_,24,0);lv_obj_set_style_border_width(motion_calibrate_,1,0);
+ lv_obj_set_style_bg_color(motion_calibrate_,lv_color_hex(0),0);lv_obj_set_style_bg_opa(motion_calibrate_,LV_OPA_COVER,0);
+ motion_calibrate_text_=text(motion_calibrate_,"CALIBRATE",0,0,210,&barlow_24);lv_obj_center(motion_calibrate_text_);
+ lv_obj_add_event_cb(motion_calibrate_,[](lv_event_t* e){auto* self=static_cast<Ui*>(lv_event_get_user_data(e));if(!self->setup_gesture_.moved)self->calibrate_motion();},LV_EVENT_CLICKED,this);
+}
+void Ui::update_motion(){
+ if(setup_page_==5)lv_obj_remove_flag(motion_panel_,LV_OBJ_FLAG_HIDDEN);else lv_obj_add_flag(motion_panel_,LV_OBJ_FLAG_HIDDEN);
+ lv_obj_set_style_text_color(motion_title_,lv_color_hex(setup_draft_.accent),0);
+ lv_obj_set_style_border_color(motion_calibrate_,lv_color_hex(setup_draft_.accent),0);
+ const auto feedback_tint=lv_color_mix(lv_color_hex(0xffffff),lv_color_hex(setup_draft_.accent),72);
+ lv_obj_set_style_bg_color(motion_calibrate_,motion_calibrated_feedback_?lv_color_mix(feedback_tint,lv_color_hex(0),56):lv_color_hex(0),0);
+ for(auto& frame:motion_frames_)if(!frame.pixels.empty() && (frame.pixels[0]&0xffffffu)!=setup_draft_.accent){for(auto& pixel:frame.pixels)pixel=(pixel&0xff000000u)|setup_draft_.accent;lv_image_cache_drop(&frame.image);lv_obj_invalidate(frame.object);}
+}
+bool Ui::calibrate_motion(){
+ motion_cc_.configure(motion_draft_);MotionSettings calibrated;
+ if(!motion_cc_.calibrate(motion_now_,calibrated)){lv_label_set_text(setup_error_,"Hold still and try again");return false;}
+ motion_draft_=calibrated;lv_label_set_text(setup_error_,"");
+ motion_calibrated_feedback_=true;motion_calibrated_at_=lv_tick_get();
+ lv_label_set_text(motion_calibrate_text_,"CALIBRATED");update_motion();return true;
+}
+void Ui::reset_motion_feedback(){
+ motion_calibrated_feedback_=false;
+ lv_label_set_text(motion_calibrate_text_,"CALIBRATE");
+ lv_obj_set_style_bg_color(motion_calibrate_,lv_color_hex(0),0);
+}
+void Ui::update_motion_feedback(){
+ if(motion_calibrated_feedback_ && uint32_t(lv_tick_get()-motion_calibrated_at_)>=3000)reset_motion_feedback();
+}
+void Ui::update_color_preview(){
+ // Touch fast path: invalidate only the caption and the old/new marker bounds.
+ // Other setup pages are recolored lazily when changing pages or confirming.
+ lv_obj_set_style_text_color(color_value_,lv_color_hex(setup_draft_.accent),0);
+ const float a=(hue_for_accent(setup_draft_.accent)-270)*pi/180;
+ lv_obj_set_pos(color_marker_,int(std::lround(233+color_radius*std::cos(a)))-11,int(std::lround(233+color_radius*std::sin(a)))-11);
+}
 void Ui::update_setup() {
+ update_motion();
  for(int i=0;i<3;++i) {
    auto* button=midi_route_buttons_[i];
    if(setup_page_==0) lv_obj_remove_flag(button,LV_OBJ_FLAG_HIDDEN); else lv_obj_add_flag(button,LV_OBJ_FLAG_HIDDEN);
@@ -206,7 +259,7 @@ void Ui::update_setup() {
  if(setup_draft_.global_scale) lv_obj_add_state(global_toggle_,LV_STATE_CHECKED); else lv_obj_remove_state(global_toggle_,LV_STATE_CHECKED);
  lv_label_set_text(global_status_,setup_draft_.global_scale?"ON":"OFF");
  lv_obj_set_style_text_color(setup_title_,lv_color_hex(setup_draft_.accent),0);
- lv_obj_set_style_text_color(color_value_,lv_color_hex(setup_draft_.accent),0);
+ update_color_preview();
  for(size_t i=3;i<menu_frames_.size();++i) {
    auto& current=menu_frames_[i];
    if(!current.pixels.empty() && (current.pixels[0]&0xffffffu)!=setup_draft_.accent) {
@@ -215,8 +268,6 @@ void Ui::update_setup() {
    }
  }
  auto& frame=menu_frames_[3];
- const float a=(hue_for_accent(setup_draft_.accent)-270)*pi/180;
- lv_obj_set_pos(color_marker_,int(std::lround(233+color_radius*std::cos(a)))-11,int(std::lround(233+color_radius*std::sin(a)))-11);
  for(auto* object:{channel_panel_,setup_title_,frame.object,channel_caption_,clock_caption_,clock_toggle_,clock_status_}) {
    if(setup_page_!=0) lv_obj_add_flag(object,LV_OBJ_FLAG_HIDDEN); else lv_obj_remove_flag(object,LV_OBJ_FLAG_HIDDEN);
  }
@@ -254,7 +305,7 @@ void Ui::update_clock_tempo(bool force) {
  }
 }
 void Ui::set_setup_page(int page) {
- constexpr int page_count=5;
+ constexpr int page_count=6;
  setup_page_=(page%page_count+page_count)%page_count;
  close_slot_dialog();
  if(setup_page_==4) {
@@ -268,11 +319,13 @@ void Ui::set_setup_page(int page) {
      const float coverage=std::clamp(std::min(r-color_inner,color_outer-r)+.5f,0.f,1.f);
      if(coverage<=0) continue;
      const int hue=int(std::lround(std::atan2(dy,dx)*180/pi+270));
-     color_pixels_[y*466+x]=(uint32_t(coverage*255)<<24)|accent_for_hue(hue);
+     // The screen underneath is always black. Preblend the antialiased edge
+     // once, then use a native opaque RGB565 copy instead of ARGB blending.
+     color_pixels_[y*466+x]=lv_color_to_u16(lv_color_mix(lv_color_hex(accent_for_hue(hue)),lv_color_hex(0),uint8_t(coverage*255)));
    }
-   color_image_.header.magic=LV_IMAGE_HEADER_MAGIC; color_image_.header.cf=LV_COLOR_FORMAT_ARGB8888;
-   color_image_.header.w=color_image_.header.h=466; color_image_.header.stride=466*4;
-   color_image_.data_size=uint32_t(color_pixels_.size()*4); color_image_.data=reinterpret_cast<const uint8_t*>(color_pixels_.data());
+   color_image_.header.magic=LV_IMAGE_HEADER_MAGIC; color_image_.header.cf=LV_COLOR_FORMAT_RGB565;
+   color_image_.header.w=color_image_.header.h=466; color_image_.header.stride=466*2;
+   color_image_.data_size=uint32_t(color_pixels_.size()*2); color_image_.data=reinterpret_cast<const uint8_t*>(color_pixels_.data());
  }
  update_setup();
 }
@@ -353,7 +406,7 @@ void Ui::set_setup_color(lv_point_t p) {
  const float dx=float(p.x-233),dy=float(p.y-233);
  if(std::hypot(dx,dy)<150) return;
  const auto value=accent_for_hue(int(std::lround(std::atan2(dy,dx)*180/pi+270)));
- if(value!=setup_draft_.accent) { setup_draft_.accent=value; update_setup(); }
+ if(value!=setup_draft_.accent) { setup_draft_.accent=value; update_color_preview(); }
 }
 void Ui::setup_event(lv_event_t* e) {
  auto* self=static_cast<Ui*>(lv_event_get_user_data(e)); if(!self->setup_open_ || self->power_off_visible_ || self->slot_dialog_) return;
@@ -378,6 +431,9 @@ void Ui::setup_event(lv_event_t* e) {
        if(p.x>=bounds.x1 && p.x<=bounds.x2 && p.y>=bounds.y1 && p.y<=bounds.y2) g.channel=true;
      }
    }
+   if(self->setup_page_==5) for(auto* object:{self->selector_views_[33],self->selector_views_[34],self->selector_views_[35],self->motion_calibrate_}) {
+     lv_area_t bounds;lv_obj_get_coords(object,&bounds);if(p.x>=bounds.x1 && p.x<=bounds.x2 && p.y>=bounds.y1 && p.y<=bounds.y2)g.channel=true;
+   }
    if(self->setup_page_==4) for(auto* object:{self->selector_views_[22],self->slot_save_,self->slot_load_,self->slot_delete_}) {
      lv_area_t bounds; lv_obj_get_coords(object,&bounds);
      if(p.x>=bounds.x1 && p.x<=bounds.x2 && p.y>=bounds.y1 && p.y<=bounds.y2) g.channel=true;
@@ -400,8 +456,9 @@ void Ui::setup_event(lv_event_t* e) {
    if(std::abs(dx)>12 || std::abs(dy)>12) g.moved=true;
    if(code==LV_EVENT_PRESSING && g.color) self->set_setup_color(p);
    if(code==LV_EVENT_RELEASED || code==LV_EVENT_PRESS_LOST) {
+     if(code==LV_EVENT_RELEASED && g.color) self->set_setup_color(p);
      if(code==LV_EVENT_RELEASED && !g.color && !g.channel && std::abs(dx)>=48 && std::abs(dx)*10>std::abs(dy)*13)
-       self->set_setup_page(self->setup_page_+(dx<0?1:-1));
+       {constexpr int order[6]={0,5,1,2,3,4};int pos=0;while(order[pos]!=self->setup_page_)++pos;self->set_setup_page(order[(pos+(dx<0?1:5))%6]);}
      g.completed=code==LV_EVENT_RELEASED?input:nullptr; g.input=nullptr;
    }
  }
@@ -413,7 +470,11 @@ void Ui::open_setup() {
  arp_.suspend(true);
  reset_midi_session();
  if(app_.selecting) back();
- setup_draft_=app_.setup; setup_open_=true; setup_gesture_={};
+ reset_motion_feedback();
+ setup_draft_=app_.setup; motion_draft_=app_.motion;
+ motion_cc_.configure(app_.motion);
+ for(int c=33;c<36;++c){auto& s=selectors_[c];lv_anim_delete(&s,nullptr);s.input=nullptr;s.target=(c==33?motion_draft_.channel-1:motion_option(motion_draft_.cc[c-34]))*s.step;set_selector_offset(c,s.target);}
+ setup_open_=true; setup_gesture_={};
  sync_arp_pause();
  sync_travel();
  auto& s=selectors_[2]; lv_anim_delete(&s,nullptr); s.input=nullptr;
@@ -427,7 +488,7 @@ void Ui::cancel_setup() {
  close_slot_dialog();
  // A finger left on the outer color ring must not become a keyboard note.
  reset_midi_session();
- for(int column:{2,3,4,5,22}) { lv_anim_delete(&selectors_[column],nullptr); selectors_[column].input=nullptr; }
+ for(int column:{2,3,4,5,22,33,34,35}) { lv_anim_delete(&selectors_[column],nullptr); selectors_[column].input=nullptr; }
  setup_open_=false; setup_gesture_={}; lv_obj_add_flag(setup_,LV_OBJ_FLAG_HIDDEN);
  lv_obj_remove_flag(wheel_,LV_OBJ_FLAG_HIDDEN);
  sync_arp_clock();
@@ -444,9 +505,11 @@ void Ui::recolor_scale_menu() {
 bool Ui::confirm_setup() {
  if(slot_dialog_) { close_slot_dialog(); lv_label_set_text(setup_error_,""); return false; }
  if(!setup_open_ || !valid_setup(setup_draft_) || power_off_visible_) return false;
- for(int column:{2,3,4,5,22}) if(selectors_[column].input) {
+ for(int column:{2,3,4,5,22,33,34,35}) if(selectors_[column].input) {
    animate_selector(column,selectors_[column].offset); selectors_[column].input=nullptr;
  }
+ if(!app_.save_motion(motion_draft_)){lv_label_set_text(setup_error_,"Saving motion failed - try again");return false;}
+ motion_cc_.configure(app_.motion);motion_cc_.invalidate();
  const auto previous=app_.setup;
  if(output_ && !output_->configure(setup_draft_)) {
    output_->configure(previous); lv_label_set_text(setup_error_,"Audio unavailable - try again"); return false;
