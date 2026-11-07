@@ -116,11 +116,9 @@ def main():
     # No board backups, local settings or private developer data enter the release.
     source = work / 'Companion-Sources.zip'
     with zipfile.ZipFile(source, 'w', zipfile.ZIP_DEFLATED) as archive:
-        for item in (ROOT / 'launcher').glob('*'):
-            if item.is_file():
-                archive.write(item, 'launcher/' + item.name)
         for path in source_files():
             archive.write(path, path.relative_to(ROOT).as_posix())
+        archive.write(DEPS / 'esptool-4.12.0.dist-info/licenses/LICENSE', 'esptool-4.12.0/LICENSE')
         for item in (DEPS / 'esptool').rglob('*'):
             if item.is_file() and '__pycache__' not in item.parts:
                 archive.write(item, 'esptool-4.12.0/esptool/' + item.relative_to(DEPS / 'esptool').as_posix())
