@@ -51,6 +51,8 @@ def source_files(manual_artifacts=False):
             files.update(ROOT / 'docs' / relative
                          for relative in re.findall(r'!\[[^\]]*\]\(([^)]+)\)', text))
         files.add(ROOT / 'docs/manual-assets/Barlow-OFL.txt')
+        text = (ROOT / 'README.md').read_text(encoding='utf-8-sig')
+        files.update(ROOT / relative for relative in re.findall(r'!\[[^\]]*\]\(([^)]+)\)', text))
     for path in files:
         if not path.is_file():
             raise RuntimeError(f'Missing publication input: {path.relative_to(ROOT)}')

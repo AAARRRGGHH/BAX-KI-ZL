@@ -19,7 +19,7 @@ A pocket-sized musical playground for exploring melodies, harmonies and rhythms 
 | **Kinetic** | Flick balls around a circular field. Boundary hits become scale notes; size, speed and lifetime shape the music. Optional quantization and clock sync. |
 | **Keyboard** | A circular scale keyboard with octave gestures and two-finger playing. |
 
-![Chords — diatonic chord pads](docs/manual-assets/chords.png)
+![Chords — three customized chord pads](docs/preview-assets/chords-custom.png)
 ![Arpeggiator — Anchor pattern](docs/manual-assets/arp-pattern.png)
 ![Kinetic — interactive musical playground](docs/manual-assets/kinetic-play.png)
 ![Keyboard — scale keyboard](docs/manual-assets/keyboard.png)

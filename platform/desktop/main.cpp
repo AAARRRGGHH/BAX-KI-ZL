@@ -318,6 +318,10 @@ int main(int argc,char** argv) {
    };
    const auto save_setup=[&]() { legacy_power(sm::ButtonEvent::Press); legacy_power(sm::ButtonEvent::Release); pump(60); };
    shot("boot"); pump(3650); shot("chords");
+   auto preview_chords=app.chords;
+   for(int degree:{0,3,5})preview_chords.variants[degree]=sm::ChordVariant::Seventh;
+   if(!app.save_chords(preview_chords))result=8;
+   ui.refresh();shot("chords-preview");ui.reset_chord_buttons();
    twice(); shot("chord-select"); ui.back();
    swipe(233,233,233,69); ui.scroll(170,233,-3); pump(220); shot("chord-edit"); ui.confirm(); shot("chord-custom");
    ui.reset_chord_buttons(); twice(); ui.scroll(359,233,-5); pump(220); shot("strum-ms"); ui.confirm();
