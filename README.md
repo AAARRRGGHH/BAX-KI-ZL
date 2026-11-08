@@ -2,6 +2,16 @@
 
 ## [Download V1.1 for Windows — Simulator + Firmware Installer](https://github.com/AAARRRGGHH/BAX-KI-ZL/releases/download/v1.1/BAX-KI-ZL-Companion-Windows.zip)
 
+## AI transparency and contributions
+
+I do not claim ownership of this project or regard it as my intellectual property. Feel free to modify, adapt, expand, or build upon it under the terms of the **GPL-3.0-or-later** license.
+
+**AAARRRGGHH**, the project initiator, contributed the idea, musical goals, interaction concept, visual direction, feature decisions and extensive practical testing.
+
+**OpenAI Codex** carried out technical implementation under that direction: research, architecture, programming, debugging, automated tests, build tools, simulator and documentation. It was developed with AI assistance, not programmed solely by the project initiator. **KI** stands for *K?nstliche Intelligenz*, the German term for *artificial intelligence (AI)*. Its inclusion in the project name openly acknowledges that collaboration.
+
+Existing libraries, fonts and board drivers retain their authorship and license notices.
+
 **Try it without hardware. If you like it, flash your Waveshare from the same app.**
 
 [English manual (PDF)](docs/BAX-KI-ZL_Manual_EN.pdf) · [Deutsches Handbuch (PDF)](docs/BAX-KI-ZL_Manual_DE.pdf) · [Release notes](docs/RELEASE_V1_1.md)
@@ -85,14 +95,6 @@ return to level. The color selector also responds more efficiently in V1.1.
 | Deutsch | [V1.1 Bedienungsanleitung](docs/BAX-KI-ZL_Manual_DE.pdf) | [Markdown](docs/MANUAL_DE.md) |
 
 [Build from source](docs/BUILD.md) · [Companion details](docs/COMPANION.md)
-
-## How this project was created
-
-**AAARRRGGHH**, the project initiator, contributed the idea, musical goals, interaction concept, visual direction, feature decisions and extensive practical testing.
-
-**OpenAI Codex** carried out technical implementation under that direction: research, architecture, programming, debugging, automated tests, build tools, simulator and documentation. It was developed with AI assistance, not programmed solely by the project initiator. The **KI** in the name acknowledges that collaboration openly.
-
-Existing libraries, fonts and board drivers retain their authorship and license notices.
 
 ## License and feedback
 
