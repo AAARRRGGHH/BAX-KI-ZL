@@ -80,7 +80,7 @@ Hold it comfortably, tap **CALIBRATE**, then press PWR briefly to save.
 The center sends 64; ±45° covers 0–127, with smoothing and a small dead zone.
 Assignments and calibration survive shutdown and stay separate from song slots.
 Switch **Travel Mode OFF** for external MIDI, then map the CCs at your instrument,
-DAW or MIDI-to-CV module. Pitch Bend is not included.
+DAW or MIDI-to-CV module.
 
 ![Motion CC — X assigned to CC 1, Y to CC 74, calibration confirmed](docs/manual-assets/setup-motion-example.png)
 
