@@ -15,7 +15,7 @@ BAX:KI:ZL was developed through a collaboration between the project initiator an
 
 Codex carried out the technical implementation: hardware and documentation research, software architecture, source code, debugging, automated tests, build preparation, the simulator and documentation, including this manual. The software was therefore developed with AI assistance; it was not programmed solely by the project initiator. Existing libraries and board drivers provide its technical foundations and retain their respective authorship and licenses. **KI**, the German abbreviation for AI, is also part of the name to acknowledge this openly.
 
-**About the pictures:** The screenshots in this manual were generated using the current Windows simulator. The enclosure provides orientation; the accent color shown is cyan. Clock and battery values in the illustrations are simulated examples.
+**About the pictures:** The screenshots in this manual were generated using the current Windows simulator. The enclosure provides orientation; the accent color shown is lime green. Clock and battery values in the illustrations are simulated examples.
 
 <h2 class="contents-title">Contents</h2>
 
@@ -391,7 +391,7 @@ Both axes can work together. Menus and invalid or stale sensor samples pause out
 
 ### UI COLOR
 
-Drag the white handle around the color ring or tap the desired point. The current color appears in **UI COLOR** at the center and colors the interface accents. Note labels remain white. The default is cyan **#2EE7E7**.
+Drag the white handle around the color ring or tap the desired point. The current color appears in **UI COLOR** at the center and colors the interface accents. Note labels remain white. The default is lime green **#ACE72E**.
 
 To change pages, start in the free center; a gesture starting on the color ring stays assigned to color selection. The confirmed color also applies to the boot logo and power-off ring.
 
@@ -559,7 +559,7 @@ Chords and Arpeggiator face-down resets are saved while key and scale remain. Ki
 
 ### Portable application
 
-Run **BAX-KI-ZL-Companion.exe** from the current package. Its home screen has **Flash Firmware** and **Run Simulator**. The window stays square; the logo, text, buttons and spacing scale proportionally. UI text and error guidance are English. The EXE includes firmware, simulator, enclosure mask and runtime libraries.
+Run **BAX-KI-ZL-Companion.exe** from the current package. Its home screen has **Flash Firmware** and **Run Simulator**. The window stays square; the logo, text, buttons and spacing scale proportionally. UI text and error guidance are English. The EXE includes firmware, simulator, enclosure mask and runtime libraries. The Companion logo, button outlines and flash dialogs adopt the simulator?s confirmed UI color when returning home and on the next application start. Without a saved color, the default is lime green #ACE72E. The Waveshare retains its own color settings.
 
 ![Simulator: RESET appears at the top left when Kinetic contains balls.](manual-assets/simulator-reset.png)
 

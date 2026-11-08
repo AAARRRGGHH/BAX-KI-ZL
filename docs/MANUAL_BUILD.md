@@ -7,11 +7,11 @@ Stand / edition: **7. November / 7 November 2026**.
 | Deutsch | [MANUAL_DE.md](MANUAL_DE.md) | [HTML](BAX-KI-ZL_Manual_DE.html) | [PDF](BAX-KI-ZL_Manual_DE.pdf) | `Handbuch.cmd` |
 | English | [MANUAL_EN.md](MANUAL_EN.md) | [HTML](BAX-KI-ZL_Manual_EN.html) | [PDF](BAX-KI-ZL_Manual_EN.pdf) | `Manual_EN.cmd` |
 
-Beide Fassungen verwenden schwarzen Hintergrund, weißen Text, Cyan-Akzente,
+Beide Fassungen verwenden schwarzen Hintergrund, weißen Text, Limegrün-Akzente,
 Barlow und dieselben 41 Simulator-Abbildungen. Der Transparenzhinweis zur
 Zusammenarbeit mit OpenAI Codex steht in beiden Fassungen am Anfang.
 
-Both editions use black pages, white text, cyan accents, embedded Barlow fonts
+Both editions use black pages, white text, lime green accents, embedded Barlow fonts
 and the same 41 simulator illustrations. Both include the project contribution
 and AI-assistance disclosure near the beginning.
 

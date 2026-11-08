@@ -1,10 +1,10 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1100 250">
   <!-- Main glyphs: seven empty pixel columns between ink bounds at 396 px width. -->
   <!-- Reconstructed geometry. White lettering and an independently tinted accent layer. -->
-  <g id="accent" fill="none" stroke="#2ee7e7" stroke-width="6" stroke-linecap="round">
+  <g id="accent" fill="none" stroke="#ace72e" stroke-width="6" stroke-linecap="round">
     <path d="M 287 46 L 115 46 C 54 46 8 92 8 146 C 8 200 54 246 115 246 L 985 246 C 1046 246 1092 200 1092 146 C 1092 92 1046 46 985 46 L 822 46"/>
   </g>
-  <g id="accent-dots" fill="#2ee7e7">
+  <g id="accent-dots" fill="#ace72e">
     <circle cx="533.39824" cy="117.0" r="18"/><circle cx="533.39824" cy="175.0" r="18"/>
     <circle cx="778.7938" cy="117.0" r="18"/><circle cx="778.7938" cy="175.0" r="18"/>
   </g>

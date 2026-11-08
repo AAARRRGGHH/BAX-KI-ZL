@@ -12,7 +12,7 @@ class Menu {
  int wheel_count_=0,drag_wheel_=-1,axis_=0;bool pressed_=false;
  Vec start_{},last_{};double drag_offset_=0,tap_flash_=0;
  uint64_t last_tap_=0;std::array<uint64_t,4> tap_intervals_{};unsigned tap_count_=0;
- uint32_t accent_=0x2ee7e7;
+ uint32_t accent_=sm::default_accent;
  int painted_page_=-1;std::array<double,2> painted_offsets_{};double painted_flash_=0;bool painted_quantized_=true;
  int count(Field f) const;int value(Field f) const;bool looping(Field f) const;
  void apply(Field f,int option);void layout();void tap(uint64_t now);

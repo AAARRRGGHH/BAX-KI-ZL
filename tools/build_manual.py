@@ -8,6 +8,7 @@ from pathlib import Path
 import argparse
 import base64
 import html
+import json
 import re
 import sys
 import subprocess
@@ -61,12 +62,13 @@ def font(name):
     path = ROOT / "assets/fonts" / name
     return "data:font/ttf;base64," + base64.b64encode(path.read_bytes()).decode("ascii")
 
+brand_accent = json.loads((ROOT/'assets/brand.json').read_text(encoding='utf-8'))['accent']
 css = """
 @font-face{font-family:Barlow;src:url('REGULAR');font-weight:400;font-display:swap}
 @font-face{font-family:Barlow;src:url('BOLD');font-weight:700;font-display:swap}
 *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#000;color:#fff;font-family:Barlow,Arial,sans-serif;font-size:18px;line-height:1.5}
 article{max-width:1040px;margin:32px auto;padding:50px 64px;background:#000;box-shadow:none}
-a{color:#2ee7e7;text-decoration-thickness:1px;text-underline-offset:3px}h1,h2,h3{line-height:1.15;color:#fff}h2{font-size:32px;border-top:3px solid #2ee7e7;padding-top:18px;margin-top:60px}h3{font-size:24px;margin-top:32px}p{margin:14px 0}strong{font-weight:700}li{margin:6px 0}
+a{color:BRAND_ACCENT;text-decoration-thickness:1px;text-underline-offset:3px}h1,h2,h3{line-height:1.15;color:#fff}h2{font-size:32px;border-top:3px solid BRAND_ACCENT;padding-top:18px;margin-top:60px}h3{font-size:24px;margin-top:32px}p{margin:14px 0}strong{font-weight:700}li{margin:6px 0}
 .cover{text-align:center;min-height:850px;padding:12.5% 0 36px}.cover img{display:block;width:75%;max-width:75%;height:auto;margin:0 auto}.cover-modes{font-size:18px;margin:26px 0 0}.edition{font-size:16px;color:#ccc;margin:12px 0 0}.cover-hardware{font-size:15px;color:#ccc;margin:8px 0 0}
 
 .contents-title{margin-top:28px}.toc ul{list-style:none;padding-left:0}.toc li{margin:8px 0}.toc a{text-decoration:none}.toc a:hover{text-decoration:underline}
@@ -82,11 +84,11 @@ table{border-collapse:collapse;width:100%;font-size:16px;margin:22px 0}th,td{tex
  h2{font-size:22pt;margin:0 0 6mm;padding-top:4mm;break-before:page;break-after:avoid}h2.contents-title{break-before:auto;margin-top:7mm}h3{font-size:14pt;margin-top:5mm;break-after:avoid}p{margin:3mm 0;orphans:3;widows:3;break-inside:avoid}li{margin:1.5mm 0}
  .toc ul{margin:4mm 0}.toc li{margin:3mm 0}table{font-size:9.1pt;margin:4mm 0}th,td{padding:1.6mm 2.5mm}thead{display:table-header-group}tr{break-inside:avoid}
  .gallery{gap:8mm;margin:5mm 0;break-inside:avoid;flex-wrap:nowrap}.gallery figure{width:68mm;max-width:68mm;flex:0 1 68mm;break-inside:avoid}.gallery img{border-radius:0}figcaption{font-size:8.6pt;margin-top:2mm}.gallery:has(figure:only-child) figure{max-width:68mm;width:68mm}
- a{color:#2ee7e7;text-decoration:none}code{background:transparent;padding:0}
+ a{color:BRAND_ACCENT;text-decoration:none}code{background:transparent;padding:0}
  .compact-gallery .gallery figure{width:46mm;max-width:46mm;flex:0 1 46mm}
  .keep-together{break-inside:avoid}
 }
-""".replace("REGULAR", font("Barlow-Regular.ttf")).replace("BOLD", font("Barlow-Bold.ttf"))
+""".replace("BRAND_ACCENT", brand_accent).replace("REGULAR", font("Barlow-Regular.ttf")).replace("BOLD", font("Barlow-Bold.ttf"))
 edition_date = '07/11/2026' if args.lang == 'DE' else '11/07/2026'
 
 document = (f'<!doctype html><html lang="{args.lang.lower()}"><head><meta charset="utf-8">'

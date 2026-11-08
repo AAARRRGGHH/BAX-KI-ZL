@@ -58,6 +58,8 @@ Companion installs its prebuilt firmware and verifies the write. It does not com
 
 The manuals cover playing, saving/loading, connections, clock and power controls. Battery and clock values in screenshots are simulated examples.
 
+The shared default accent is **lime green #ACE72E** across the instrument, Companion, logo, icon and manuals. Existing custom device colors are retained. Companion also adopts the simulator?s confirmed UI color for its logo, buttons and flash dialogs, including after a restart.
+
 ## Motion CC
 
 Tilt the pebble to control effects while playing any of the four modes. In

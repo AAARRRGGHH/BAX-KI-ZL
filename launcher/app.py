@@ -12,18 +12,20 @@ import tkinter.font as tkfont
 from PIL import Image, ImageTk
 
 import backend
+from brand import ACCENT, dark_accent, simulator_accent, tint_logo
 from square_window import SquareWindow
 from button_art import render as render_button
 
-BLACK, WHITE, ACCENT, MUTED = '#000000', '#ffffff', '#2ee7e7', '#9ca8aa'
+BLACK, WHITE, MUTED = '#000000', '#ffffff', '#9ca8aa'
 
 
 class RoundedButton(tk.Canvas):
-    def __init__(self, parent, text, command, font, accent=True, shape='pill'):
+    def __init__(self, parent, text, command, font, accent=True, shape='pill', color=ACCENT):
         self.text, self.command = text, command
         self.shape = shape
         self.scale = 1.
-        self.edge = ACCENT if accent else '#647174'
+        self.edge = color if accent else '#647174'
+        self.dark = dark_accent(color)
         self.hover = self.pressed = False
         self.art_key = None
         label_font = tkfont.Font(family=font, size=17)
@@ -50,7 +52,7 @@ class RoundedButton(tk.Canvas):
         if w < 12 or h < 12:
             return
         edge = WHITE if self.focus_get() == self else self.edge
-        fill = '#102526' if self.hover or self.pressed else BLACK
+        fill = self.dark if self.hover or self.pressed else BLACK
         key = (w, h, self.scale, self.shape, edge, fill)
         if key != self.art_key:
             self.art = ImageTk.PhotoImage(render_button(*key))
@@ -79,6 +81,7 @@ class App:
         self.root = root
         self.payload = payload or backend.resources()
         self.data = data or backend.user_data()
+        self.accent = simulator_accent(self.data)
         self.events = queue.Queue()
         self.busy = False
         self.candidates = []
@@ -91,6 +94,13 @@ class App:
         self.home_buttons = None
         self.logo_size = None
         root.title('BAX:KI:ZL · Companion')
+        icon = self.payload / 'companion.ico'
+        if icon.is_file() and sys.platform == 'win32':
+            root.iconbitmap(default=str(icon))
+            root.iconbitmap(str(icon))
+        elif (self.payload / 'companion-icon.png').is_file():
+            self.window_icon = ImageTk.PhotoImage(Image.open(self.payload / 'companion-icon.png'))
+            root.iconphoto(True, self.window_icon)
         root.configure(bg=BLACK)
         root.geometry('720x720')
         root.minsize(620, 620)
@@ -104,13 +114,14 @@ class App:
         self.font = 'Barlow'
         style = ttk.Style(root)
         style.theme_use('clam')
-        style.configure('Accent.Horizontal.TProgressbar', troughcolor='#122122',
-                        background=ACCENT, borderwidth=0, lightcolor=ACCENT, darkcolor=ACCENT)
+        style.configure('Accent.Horizontal.TProgressbar', troughcolor=dark_accent(self.accent),
+                        background=self.accent, borderwidth=0, lightcolor=self.accent, darkcolor=self.accent)
         style.configure('Dark.TCombobox', fieldbackground='#101819', background='#101819',
-                        foreground=WHITE, arrowcolor=ACCENT, padding=8)
+                        foreground=WHITE, arrowcolor=self.accent, padding=8)
         style.map('Dark.TCombobox', fieldbackground=[('readonly', '#101819')],
                   foreground=[('readonly', WHITE)], selectbackground=[('readonly', '#101819')])
-        self.logo_source = Image.open(self.payload / 'logo.png').convert('RGB')
+        self.logo_template = Image.open(self.payload / 'logo.png').convert('RGB')
+        self.logo_source = tint_logo(self.logo_template, self.accent)
         self.logo = ImageTk.PhotoImage(self.logo_source)
         self.header = tk.Label(root, image=self.logo, bg=BLACK, bd=0, padx=0, pady=0, highlightthickness=0)
         self.body = tk.Frame(root, bg=BLACK)
@@ -124,7 +135,7 @@ class App:
                         bg=BLACK, **kwargs)
 
     def button(self, parent, text, command, accent=True):
-        return RoundedButton(parent, text, command, self.font, accent)
+        return RoundedButton(parent, text, command, self.font, accent, color=self.accent)
 
     def square_resize(self, event):
         if event.widget != self.root or self.closed:
@@ -181,14 +192,27 @@ class App:
         self.body.place(relx=.07, rely=.30, relwidth=.86, relheight=.65)
         self.layout()
 
+    def refresh_accent(self):
+        accent = simulator_accent(self.data)
+        if accent == self.accent:
+            return
+        self.accent = accent
+        self.logo_source = tint_logo(self.logo_template, accent)
+        self.logo_size = None
+        style = ttk.Style(self.root)
+        style.configure('Accent.Horizontal.TProgressbar', troughcolor=dark_accent(accent),
+                        background=accent, lightcolor=accent, darkcolor=accent)
+        style.configure('Dark.TCombobox', arrowcolor=accent)
+
     def home(self):
+        self.refresh_accent()
         self.clear()
         self.body.place(relx=.04, rely=.60, relwidth=.92, relheight=.22)
         self.home_row = tk.Frame(self.body, bg=BLACK)
         self.home_row.place(relx=.5, rely=.5, anchor='center')
         self.home_buttons = (
-            RoundedButton(self.home_row, 'Flash Firmware', self.search, self.font, shape='left'),
-            RoundedButton(self.home_row, 'Run Simulator', self.launch_simulator, self.font, shape='right'))
+            RoundedButton(self.home_row, 'Flash Firmware', self.search, self.font, shape='left', color=self.accent),
+            RoundedButton(self.home_row, 'Run Simulator', self.launch_simulator, self.font, shape='right', color=self.accent))
         self.layout()
 
     def background(self, work):
@@ -209,7 +233,7 @@ class App:
         if self.busy:
             return
         self.clear()
-        self.label(self.body, 'Looking for your Waveshare …', 20, ACCENT).pack(pady=20)
+        self.label(self.body, 'Looking for your Waveshare …', 20, self.accent).pack(pady=20)
         self.background(lambda: self.emit('ports', backend.ports()))
 
     def show_ports(self, candidates):
@@ -217,13 +241,13 @@ class App:
         self.candidates = candidates
         self.clear()
         if not candidates:
-            self.label(self.body, 'No compatible USB port found', 20, ACCENT).pack(pady=8)
+            self.label(self.body, 'No compatible USB port found', 20, self.accent).pack(pady=8)
             self.label(self.body, 'Connect the Waveshare using a USB data cable.\n'
                        'If needed, hold BOOT, connect USB, then release BOOT.\n'
                        'Close any serial monitors before trying again.', 15, MUTED,
                        justify='center').pack(pady=14)
         else:
-            self.label(self.body, 'Confirm flash port', 20, ACCENT).pack(pady=(5, 12))
+            self.label(self.body, 'Confirm flash port', 20, self.accent).pack(pady=(5, 12))
             self.port_choice = ttk.Combobox(self.body, values=[p.label for p in candidates],
                                            state='readonly', style='Dark.TCombobox',
                                            font=(self.font, 13), width=60)
@@ -249,7 +273,7 @@ class App:
         target = self.candidates[selected]
         self.clear()
         self.log_path = None
-        self.status = self.label(self.body, 'Checking firmware package …', 18, ACCENT)
+        self.status = self.label(self.body, 'Checking firmware package …', 18, self.accent)
         self.status.pack(pady=(2, 12))
         self.progress = ttk.Progressbar(self.body, style='Accent.Horizontal.TProgressbar',
                                         maximum=100, mode='determinate')
@@ -279,7 +303,7 @@ class App:
         self.busy = False
         self.clear()
         self.label(self.body, 'Firmware flashed successfully' if success else 'Operation unsuccessful',
-                   22, ACCENT).pack(pady=(2, 12))
+                   22, self.accent).pack(pady=(2, 12))
         if success:
             text = ('The firmware has been written and verified.\n'
                     'Your device is restarting. Its COM port may change.\n'
@@ -292,7 +316,7 @@ class App:
         panel = tk.Text(text_area, height=8, bg=BLACK, fg=WHITE, relief='flat',
                         font=(self.font, 13), wrap='word')
         scrollbar = tk.Scrollbar(text_area, command=panel.yview, bg=BLACK,
-                                 troughcolor=BLACK, activebackground=ACCENT)
+                                 troughcolor=BLACK, activebackground=self.accent)
         panel.configure(yscrollcommand=scrollbar.set)
         scrollbar.pack(side='right', fill='y')
         panel.insert('1.0', text)
@@ -358,6 +382,7 @@ class App:
 def main():
     if sys.platform == 'win32':
         ctypes.windll.shcore.SetProcessDpiAwareness(1)
+        ctypes.windll.shell32.SetCurrentProcessExplicitAppUserModelID('AAARRRGGHH.BAX-KI-ZL.Companion')
     root = tk.Tk()
     # Avoid two companion instances racing for the same serial port or simulator
     # installation. The Windows mutex handle stays alive until process exit.

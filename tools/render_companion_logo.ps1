@@ -2,6 +2,7 @@ param([Parameter(Mandatory=$true)][string]$OutputFile)
 $ErrorActionPreference = 'Stop'
 Add-Type -AssemblyName System.Drawing
 $root = Split-Path $PSScriptRoot -Parent
+$brand = Get-Content -LiteralPath (Join-Path $root 'assets/brand.json') -Raw | ConvertFrom-Json
 [xml]$svg = Get-Content -LiteralPath (Join-Path $root 'assets/boot_logo.svg') -Raw
 $image = [Drawing.Bitmap]::new(2200,500)
 $graphics = [Drawing.Graphics]::FromImage($image)
@@ -9,7 +10,7 @@ $graphics.Clear([Drawing.Color]::Black)
 $graphics.SmoothingMode = [Drawing.Drawing2D.SmoothingMode]::AntiAlias
 $graphics.ScaleTransform(2,2)
 foreach ($group in $svg.svg.g) {
-    $color = if ($group.id.StartsWith('accent')) { [Drawing.ColorTranslator]::FromHtml('#2ee7e7') } else { [Drawing.Color]::White }
+    $color = if ($group.id.StartsWith('accent')) { [Drawing.ColorTranslator]::FromHtml($brand.accent) } else { [Drawing.Color]::White }
     $brush = [Drawing.SolidBrush]::new($color)
     foreach ($element in $group.ChildNodes) {
         if ($element.Name -eq 'circle') {

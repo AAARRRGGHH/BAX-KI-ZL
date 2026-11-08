@@ -46,8 +46,8 @@ int main(){
  center_frame.balls[0].retiring=true;center_frame.balls[0].fade_elapsed=Ball::fade_seconds/2;view.capture(center_frame);view.invalidate_regions(panel);lv_refr_now(display);REQUIRE(screen[233*466+233]>0 && screen[233*466+233]<0xffff);
  // A countdown alone never redraws or dims the indicator. Only its two
  // state changes transfer ring pixels; the ball's end-of-life fade is separate.
- View::Frame pulse;pulse.flashes[0]=World::flash_seconds;view.capture(pulse);view.invalidate_regions(panel);lv_refr_now(display);REQUIRE(screen[8*466+233]==lv_color_to_u16(lv_color_hex(0x2ee7e7)));
- const auto held_pixels=transferred;for(int frame=1;frame<=10;++frame){pulse.flashes[0]=World::flash_seconds-frame*.008;view.capture(pulse);view.invalidate_regions(panel);lv_refr_now(display);REQUIRE(transferred==held_pixels && screen[8*466+233]==lv_color_to_u16(lv_color_hex(0x2ee7e7)));}
+ View::Frame pulse;pulse.flashes[0]=World::flash_seconds;view.capture(pulse);view.invalidate_regions(panel);lv_refr_now(display);REQUIRE(screen[8*466+233]==lv_color_to_u16(lv_color_hex(sm::default_accent)));
+ const auto held_pixels=transferred;for(int frame=1;frame<=10;++frame){pulse.flashes[0]=World::flash_seconds-frame*.008;view.capture(pulse);view.invalidate_regions(panel);lv_refr_now(display);REQUIRE(transferred==held_pixels && screen[8*466+233]==lv_color_to_u16(lv_color_hex(sm::default_accent)));}
  pulse.flashes[0]=0;view.capture(pulse);view.invalidate_regions(panel);lv_refr_now(display);REQUIRE(screen[8*466+233]==0xffff && transferred>held_pixels);
  View::Frame many;for(size_t i=0;i<max_balls;++i){many.balls[i].alive=true;many.balls[i].p={double((int(i)%3-1)*60),double((int(i)/3)*90-45)};}
  view.capture(many);view.reset_damage();view.rebuild_scene();lv_obj_invalidate(panel);lv_refr_now(display);
@@ -62,7 +62,7 @@ int main(){
    for(auto& f:many.flashes)f=frame<6?World::flash_seconds-frame*.017:0.;
    for(auto& b:many.balls){b.p.x+=.5;b.p.y+=.25;}
    view.capture(many);view.invalidate_regions(panel);lv_refr_now(display);
-   if(frame==0)REQUIRE(screen[8*466+233]==lv_color_to_u16(lv_color_hex(0x2ee7e7)));
+   if(frame==0)REQUIRE(screen[8*466+233]==lv_color_to_u16(lv_color_hex(sm::default_accent)));
  }
  const auto feedback_pixels=(transferred-feedback_before)/24;const auto feedback_after=view.work();
  REQUIRE(feedback_after.ring_plan_builds-feedback_work.ring_plan_builds<=1); // ON/OFF reuse the same ring geometry.

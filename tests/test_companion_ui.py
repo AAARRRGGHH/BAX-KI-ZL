@@ -47,6 +47,18 @@ class InterfaceTests(unittest.TestCase):
             time.sleep(.01)
         self.assertFalse(self.app.busy)
 
+    @unittest.skipUnless(sys.platform == 'win32', 'Windows native window icon')
+    def test_window_has_custom_icons(self):
+        import ctypes
+        self.root.deiconify()
+        self.root.update()
+        user = ctypes.WinDLL('user32', use_last_error=True)
+        user.SendMessageW.argtypes = [ctypes.c_void_p, ctypes.c_uint, ctypes.c_size_t, ctypes.c_ssize_t]
+        user.SendMessageW.restype = ctypes.c_void_p
+        hwnd = self.app.square_window.hwnd
+        for size in (0, 1):  # ICON_SMALL / ICON_BIG
+            self.assertTrue(user.SendMessageW(hwnd, 0x007f, size, 0))
+
     def test_home_two_requested_actions(self):
         self.assertIn('Flash Firmware', self.texts())
         self.assertIn('Run Simulator', self.texts())
@@ -101,9 +113,16 @@ class InterfaceTests(unittest.TestCase):
         self.assertEqual(self.app.header.winfo_manager(), '')
         process.poll.return_value = 0
         process.returncode = 0
+        settings = Path(self.temp.name)/'simulator/settings.cfg'
+        settings.parent.mkdir()
+        settings.write_text('19 0 0 1 3074023 1 1 50 400')  # #2ee7e7
         self.app.poll()
         self.assertIsNone(self.app.simulator_host)
         self.assertIn('Run Simulator', self.texts())
+        self.assertEqual(self.app.accent, '#2ee7e7')
+        self.assertTrue(all(button.edge == '#2ee7e7' for button in self.app.home_buttons))
+        self.assertEqual(self.app.logo_source.getpixel((0, 0)), (0, 0, 0))
+        self.assertEqual(tk.ttk.Style(self.root).lookup('Accent.Horizontal.TProgressbar', 'background'), '#2ee7e7')
 
     def test_no_port_guidance_without_flash_action(self):
         self.app.show_ports([])

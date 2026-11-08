@@ -1,5 +1,6 @@
 #pragma once
 #include <cstdint>
+#include "brand.hpp"
 #include <algorithm>
 #include <cmath>
 namespace sm {
@@ -7,7 +8,7 @@ struct ColorScheme {
  const char* name;
  uint32_t accent_a,accent_b,text,muted;
 };
-inline constexpr ColorScheme color_scheme{"Cyan",0x2ee7e7,0x2ee7e7,0xffffff,0xffffff};
+inline constexpr ColorScheme color_scheme{default_accent_name,default_accent,default_accent,0xffffff,0xffffff};
 // Constant brightness/saturation; cyan at hue 180 is exactly #2EE7E7.
 inline uint32_t accent_for_hue(int degrees) {
  int h=(degrees%360+360)%360,sector=h/60;

@@ -14,6 +14,8 @@ ROOT = Path(__file__).resolve().parents[1]
 DEPS = ROOT / '.tools/launcher-python'
 sys.path.insert(0, str(DEPS))
 from PIL import Image
+sys.path.insert(0, str(ROOT / 'launcher'))
+from icon_art import write_icons
 
 
 def main():
@@ -51,6 +53,7 @@ def main():
         raise RuntimeError('Visual C++ x64 redistributable files not found.')
     for dll in choices[0].glob('*.dll'):
         copy(dll, 'simulator/' + dll.name, 'simulator')
+    copy(ROOT / 'assets/brand.json', 'brand.json')
     copy(ROOT / 'assets/fonts/Barlow-Regular.ttf', 'Barlow-Regular.ttf')
     copy(ROOT / 'assets/fonts/OFL.txt', 'licenses/Barlow-OFL.txt')
     copy(ROOT / 'vendor/SDL/LICENSE.txt', 'licenses/SDL-LICENSE.txt')
@@ -83,10 +86,9 @@ def main():
                     '-File', str(ROOT / 'tools/render_companion_logo.ps1'),
                     '-OutputFile', str(payload / 'logo.png')], check=True,
                    creationflags=subprocess.CREATE_NO_WINDOW)
-    logo = Image.open(payload / 'logo.png').convert('RGB')
-    icon = Image.new('RGB', (256,256), 'black')
-    icon.paste(logo.resize((240,55),Image.Resampling.LANCZOS),(8,100))
-    icon.save(work / 'companion.ico')
+    icon, icon_png = write_icons(ROOT / 'assets')
+    copy(icon, 'companion.ico')
+    copy(icon_png, 'companion-icon.png')
     (payload / 'manifest.json').write_text(json.dumps(manifest, indent=2), encoding='utf-8')
     env = os.environ.copy()
     env['PYTHONPATH'] = str(DEPS)
@@ -94,7 +96,7 @@ def main():
                '--name', 'BAX-KI-ZL-Companion', '--distpath', str(staged_output), '--workpath', str(work / 'pyinstaller'),
                '--specpath', str(work), '--paths', str(DEPS), '--paths', str(ROOT / 'launcher'),
                '--collect-all', 'esptool', '--collect-submodules', 'serial.tools',
-               '--add-data', str(payload) + ';payload', '--icon', str(work / 'companion.ico'),
+               '--add-data', str(payload) + ';payload', '--icon', str(payload / 'companion.ico'),
                str(ROOT / 'launcher/app.py')]
     subprocess.run(command, check=True, env=env)
     release_exe = output / 'BAX-KI-ZL-Companion.exe'

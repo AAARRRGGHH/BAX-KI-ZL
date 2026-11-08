@@ -11,6 +11,8 @@ The home screen uses a large logo and a combined button pair with rounded outer
 ends. The logo, text, buttons and spacing scale proportionally. The client area
 stays square, including while dragging any window edge or corner.
 
+The logo, button outlines and flash dialogs use the simulator?s saved UI color. Confirm UI COLOR in the simulator, then return to Companion home; the color is also restored on the next application start. Without saved settings, the default is lime green #ACE72E. Device colors remain independent.
+
 ## Flash Firmware
 
 1. Connect the Waveshare using a **USB data cable**. Close any serial monitors.

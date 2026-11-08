@@ -6,6 +6,8 @@ import sys
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / '.tools/launcher-python'))
 from PIL import Image, ImageDraw, ImageFont
+sys.path.insert(0,str(ROOT/'launcher'))
+from brand import ACCENT
 
 SIZE, SS = 128, 4
 
@@ -72,7 +74,7 @@ def main():
     preview = Image.new('RGB', (SIZE*3, SIZE), 'black')
     for index, (name, large) in enumerate(masks.items()):
         image = large.resize((SIZE, SIZE), Image.Resampling.LANCZOS)
-        preview.paste('#2ee7e7' if name.endswith('accent') else 'white', ((index//2)*SIZE, 0), image)
+        preview.paste(ACCENT if name.endswith('accent') else 'white', ((index//2)*SIZE, 0), image)
         runs = []
         previous, count = -1, 0
         for alpha in image.tobytes():

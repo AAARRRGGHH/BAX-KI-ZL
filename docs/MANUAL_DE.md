@@ -15,7 +15,7 @@ BAX:KI:ZL entstand in Zusammenarbeit zwischen dem Projektinitiator und der KI-Pr
 
 Codex hat die technische Umsetzung erarbeitet: Hardware- und Dokumentationsrecherche, Softwarearchitektur, Quellcode, Fehlersuche, automatisierte Tests, Build-Vorbereitung sowie Simulator und Dokumentation einschließlich dieses Manuals. Die Software wurde damit KI-gestützt entwickelt; sie ist keine vom Projektinitiator allein programmierte Eigenentwicklung. Bestehende Bibliotheken und Boardtreiber bilden die technische Grundlage und behalten ihre jeweiligen Urheber und Lizenzen. Das **KI im Namen** steht auch für diesen offenen Umgang mit der Entstehung.
 
-**Zu den Bildern:** Alle Bildschirmaufnahmen in diesem Manual wurden mit der aktuellen Windows-Simulation erzeugt. Die Gehäuseansicht dient der Orientierung. Die gewählte UI-Farbe ist hier Cyan. Clock- und Batteriewerte in den Abbildungen sind simulierte Beispiele.
+**Zu den Bildern:** Alle Bildschirmaufnahmen in diesem Manual wurden mit der aktuellen Windows-Simulation erzeugt. Die Gehäuseansicht dient der Orientierung. Die gewählte UI-Farbe ist hier Limegrün. Clock- und Batteriewerte in den Abbildungen sind simulierte Beispiele.
 
 <h2 class="contents-title">Inhalt</h2>
 
@@ -393,7 +393,7 @@ Beide Achsen können gleichzeitig arbeiten. Menüs und ungültige oder veraltete
 
 ### UI COLOR
 
-Den weißen Anfasser auf dem Farbring ziehen oder eine Stelle des Rings antippen. Die gewählte Farbe erscheint in der Mitte bei **UI COLOR** und färbt die Akzente der Oberfläche. Die Notenbeschriftung bleibt weiß. Standard ist Cyan **#2EE7E7**.
+Den weißen Anfasser auf dem Farbring ziehen oder eine Stelle des Rings antippen. Die gewählte Farbe erscheint in der Mitte bei **UI COLOR** und färbt die Akzente der Oberfläche. Die Notenbeschriftung bleibt weiß. Standard ist Limegrün **#ACE72E**.
 
 Zum Seitenwechsel innerhalb der freien Mitte beginnen; ein auf dem Farbring gestarteter Kontakt ist für die Farbwahl reserviert. Die bestätigte Farbe wird auch für das Bootlogo und den Ausschalt-Ring verwendet.
 
@@ -561,7 +561,7 @@ Die Lage-Resets von Chords und Arpeggiator werden gespeichert; Key und Skala ble
 
 ### Portable Anwendung
 
-**BAX-KI-ZL-Companion.exe** aus dem aktuellen Paket starten. Die Startseite besitzt zwei Buttons: **Flash Firmware** und **Run Simulator**. Das Fenster bleibt quadratisch; Logo, Schrift, Buttons und Abstände der Startseite skalieren proportional. Die Oberfläche und ihre Fehlerhinweise sind auf Englisch. Firmware, Simulator, Gehäusemaske und Laufzeitbibliotheken sind in der EXE enthalten.
+**BAX-KI-ZL-Companion.exe** aus dem aktuellen Paket starten. Die Startseite besitzt zwei Buttons: **Flash Firmware** und **Run Simulator**. Das Fenster bleibt quadratisch; Logo, Schrift, Buttons und Abstände der Startseite skalieren proportional. Die Oberfläche und ihre Fehlerhinweise sind auf Englisch. Firmware, Simulator, Gehäusemaske und Laufzeitbibliotheken sind in der EXE enthalten. Logo, Button-Umrandungen und Flash-Dialoge ?bernehmen die im Simulator best?tigte UI-Farbe bei der R?ckkehr ins Hauptmen? und beim n?chsten App-Start. Ohne gespeicherte Auswahl gilt Limegr?n #ACE72E. Der Waveshare beh?lt seine eigenen Farbeinstellungen.
 
 ![Simulator: RESET erscheint oben links, sobald Kinetic Bälle enthält.](manual-assets/simulator-reset.png)
 

@@ -57,3 +57,11 @@ The builder stages EXE/ZIP under `dist/`, without flashing. It embeds current fi
 ## Manuals and assets
 
 See [MANUAL_BUILD.md](MANUAL_BUILD.md). Captures use isolated settings. Barlow Regular/Bold are supplied under the OFL. The editable boot logo is `assets/boot_logo.svg`. Generated fonts, logo masks and RESET text are checked in; regeneration is optional for a normal build.
+
+## Shared brand accent
+
+`assets/brand.json` defines the default accent. After editing it, run
+`python tools/sync_brand.py` before rebuilding native binaries; this regenerates
+`include/brand.hpp` and retints `assets/boot_logo.svg`. The Companion, its icon,
+the logo renderer and manual generator read the same JSON. Existing user-selected
+device colors remain persistent preferences and are not overwritten.

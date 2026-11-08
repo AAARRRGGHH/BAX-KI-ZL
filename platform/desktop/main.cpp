@@ -30,7 +30,7 @@ bool power_mouse=false,power_hover=false;
 bool boot_mouse=false,boot_hover=false;
 SDL_Cursor *hand_cursor=nullptr,*default_cursor=nullptr;
 bool corner_controls=true,corner_reset=false;
-uint32_t corner_accent=0x2ee7e7;
+uint32_t corner_accent=sm::default_accent;
 companion::Action corner_hover=companion::Action::None,corner_pressed=companion::Action::None;
 int mouse_x=0,mouse_y=0; bool mouse_down=false;
 int second_x=0,second_y=0; bool second_down=false;

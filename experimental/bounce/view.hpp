@@ -23,8 +23,8 @@ private:
  const RenderVector<lv_area_t>& ring_plan(uint8_t changed);
  static uint32_t ring_color(double flash,uint32_t accent);
 public:
- void draw(lv_layer_t* layer,const World& world,uint32_t accent=0x2ee7e7){if(dirty_)current_=snapshot(world);draw(layer,accent);}
- void draw(lv_layer_t* layer,uint32_t accent=0x2ee7e7);
+ void draw(lv_layer_t* layer,const World& world,uint32_t accent=sm::default_accent){if(dirty_)current_=snapshot(world);draw(layer,accent);}
+ void draw(lv_layer_t* layer,uint32_t accent=sm::default_accent);
  void capture(Frame frame){current_=frame;dirty_=true;}
  void invalidate_regions(lv_obj_t* object);
  void reset_damage(){previous_=current_;have_previous_=true;}

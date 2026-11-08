@@ -13,6 +13,18 @@
 - Ctrl+arrows / Ctrl+Home simulate tilt in the Windows simulator.
 - Travel Mode continues to use the local synth and suppresses external MIDI.
 
+## Branding
+
+- Shared default accent: **Lime Green #ACE72E** for firmware, simulator,
+  Companion, logo, application icon, manuals and GitHub previews.
+- A five-segment unlabelled note wheel replaces the generic application icon.
+  All icon sizes from 16 to 256 pixels retain five separated outlines.
+- Refreshed German/English manuals and simulator screenshots.
+- Companion adopts the simulator?s confirmed UI color on returning home and on
+  the next start, including its logo, buttons and flash dialogs.
+- Existing custom device colors, Motion CC settings and musical slots are
+  preserved. UI COLOR remains freely adjustable on the device.
+
 ## Improvements
 
 - Color selection updates only its text and marker instead of recoloring hidden

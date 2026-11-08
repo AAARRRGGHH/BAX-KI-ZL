@@ -1,5 +1,6 @@
 #pragma once
 #include "motion_settings.hpp"
+#include "brand.hpp"
 #include <array>
 #include <cstdint>
 #include <string>
@@ -106,7 +107,7 @@ struct SynthSettings {
 };
 inline bool valid_synth(SynthSettings s) { return int(s.waveform)<waveform_count && s.attack_ms<=2000 && s.decay_ms>=10 && s.decay_ms<=4000; }
 struct Setup {
- int channel=1; uint32_t accent=0x2ee7e7;
+ int channel=1; uint32_t accent=default_accent;
  bool travel=true; SynthSettings synth{};
  bool receive_clock=false;
  bool global_scale=true;
