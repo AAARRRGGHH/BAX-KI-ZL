@@ -47,18 +47,18 @@ class IconTests(unittest.TestCase):
             if group.get('id') == 'accent-dots':
                 self.assertEqual(group.get('fill'), ACCENT)
 
-    def test_transparent_corners_black_center_and_five_sectors(self):
+    def test_transparent_corners_accent_center_and_five_sectors(self):
         image = render(256)
         self.assertEqual(image.getpixel((0, 0))[3], 0)
-        self.assertEqual(image.getpixel((128, 128)), (0, 0, 0, 255))
+        self.assertEqual(image.getpixel((128, 128)), ACCENT_RGB+(255,))
         for i in range(5):
             angle = -math.pi/2+i*2*math.pi/5
             x, y = round(128+116*math.cos(angle)), round(128+116*math.sin(angle))
             pixels = [image.getpixel((x+dx, y+dy)) for dx in range(-2, 3) for dy in range(-2, 3)]
             self.assertTrue(any(max(abs(p[k]-ACCENT_RGB[k]) for k in range(3))<30 and p[3]>200 for p in pixels))
 
-    def test_five_outlines_stay_disconnected_in_every_size(self):
-        for size in ICON_SIZES:
+    def test_continuous_ring_and_five_separate_waveform_bars(self):
+        for size in (64, 128, 256):
             image = render(size)
             remaining = {(x, y) for y in range(size) for x in range(size)
                          if image.getpixel((x, y))[1] > 80 and image.getpixel((x, y))[3] > 128}
@@ -74,7 +74,7 @@ class IconTests(unittest.TestCase):
                             if point in remaining:
                                 remaining.remove(point)
                                 todo.append(point)
-            self.assertEqual(components, 5, f'{size}px outlines merged')
+            self.assertEqual(components, 6, f'{size}px ring and waveform bars merged')
 
     def test_ico_contains_individually_rendered_sizes(self):
         with tempfile.TemporaryDirectory() as folder:

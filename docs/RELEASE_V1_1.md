@@ -17,8 +17,8 @@
 
 - Shared default accent: **Lime Green #ACE72E** for firmware, simulator,
   Companion, logo, application icon, manuals and GitHub previews.
-- A five-segment unlabelled note wheel replaces the generic application icon.
-  All icon sizes from 16 to 256 pixels retain five separated outlines.
+- A continuous five-segment note ring with five rounded waveform bars replaces
+  the generic application icon. Each Windows icon size is rendered separately.
 - Refreshed German/English manuals and simulator screenshots.
 - Companion adopts the simulator?s confirmed UI color on returning home and on
   the next start, including its logo, buttons and flash dialogs.

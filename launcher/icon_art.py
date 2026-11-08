@@ -1,4 +1,4 @@
-"""Five unlabelled note pads, drawn separately for each Windows icon size."""
+"""Continuous five-sector note ring with a central waveform, rendered at each icon size."""
 from pathlib import Path
 import math
 from PIL import Image, ImageDraw
@@ -12,42 +12,59 @@ def render(size):
     image = Image.new('RGBA', (size*scale, size*scale), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
     center = size/2
-    draw.ellipse((size*.015*scale, size*.015*scale,
-                  size*.985*scale, size*.985*scale), fill=(0, 0, 0, 255))
-    stroke = max(1., size*.022)
-    # Visible space between outlines, not between their centerlines. Keep at
-    # least 2 physical pixels clear even in the 16px title-bar icon.
-    visible_gap = max(2., size*.035)
-    gap = visible_gap+stroke
-    outer = size*.46-stroke/2
-    inner = size*.215+stroke/2
+    outer, inner = size*.46, size*.225
+    stroke = max(.9, size*.027)
     color = ACCENT_RGB+(255,)
+    black = (0, 0, 0, 255)
+
+    def disk(radius, fill):
+        draw.ellipse(tuple(v*scale for v in
+                     (center-radius, center-radius, center+radius, center+radius)), fill=fill)
+
+    def point(radius, angle):
+        return (center+radius*math.cos(angle), center+radius*math.sin(angle))
+
+    disk(outer, color)
+    disk(inner, black)
+    # Five black windows cut into a single continuous ring. Parallel spokes
+    # and rounded window corners reproduce the reference without doubled edges.
     for index in range(5):
-        angle = -math.pi/2 + index*2*math.pi/5
+        angle = -math.pi/2+index*2*math.pi/5
         left, right = angle-math.pi/5, angle+math.pi/5
+        ro, ri = outer-stroke, inner+stroke
+        lo, hi = left+math.asin(stroke/(2*ro)), right-math.asin(stroke/(2*ro))
+        li, hj = left+math.asin(stroke/(2*ri)), right-math.asin(stroke/(2*ri))
+        rounding = size*.024
         points = []
-        # Parallel sides use the same perpendicular gap at both radii.
-        for radius, start, end in ((outer, left+math.asin(gap/(2*outer)), right-math.asin(gap/(2*outer))),
-                                   (inner, right-math.asin(gap/(2*inner)), left+math.asin(gap/(2*inner)))):
-            for step in range(33):
-                a = start+(end-start)*step/32
-                points.append(((center+radius*math.cos(a))*scale,
-                               (center+radius*math.sin(a))*scale))
-        # Round the four geometric corners while preserving equal sectors and
-        # parallel gaps. The sampled circular edges remain unchanged.
-        rounded = []
-        for j, point in enumerate(points):
-            if j not in (0, 32, 33, 65):
-                rounded.append(point)
-                continue
-            before, after = points[j-1], points[(j+1)%len(points)]
-            a, b = math.dist(point, before), math.dist(point, after)
-            inset = min(size*.009*scale, a*.45, b*.45)
-            start = tuple(point[k]+(before[k]-point[k])*inset/a for k in (0, 1))
-            end = tuple(point[k]+(after[k]-point[k])*inset/b for k in (0, 1))
-            for t in (k/8 for k in range(9)):
-                rounded.append(tuple((1-t)**2*start[k]+2*(1-t)*t*point[k]+t*t*end[k] for k in (0, 1)))
-        draw.line(rounded+[rounded[0]], fill=color, width=max(1, round(stroke*scale)), joint='curve')
+
+        def arc(radius, start, end):
+            points.extend(point(radius, start+(end-start)*j/48) for j in range(49))
+
+        def curve(start, corner, end):
+            for j in range(1, 17):
+                t = j/16
+                points.append(tuple((1-t)**2*start[k]+2*(1-t)*t*corner[k]+t*t*end[k] for k in (0, 1)))
+
+        arc(ro, lo+rounding/ro, hi-rounding/ro)
+        curve(points[-1], point(ro, hi), point(ro-rounding, hi))
+        points.append(point(ri+rounding, hj))
+        curve(points[-1], point(ri, hj), point(ri, hj-rounding/ri))
+        arc(ri, hj-rounding/ri, li+rounding/ri)
+        curve(points[-1], point(ri, li), point(ri+rounding, li))
+        points.append(point(ro-rounding, lo))
+        curve(points[-1], point(ro, lo), point(ro, lo+rounding/ro))
+        draw.polygon([(round(x*scale), round(y*scale)) for x, y in points], fill=black)
+
+    # Five separate rounded waveform bars: accent / white / accent / white / accent.
+    width = max(.85, size*.041)
+    spacing = max(1.65, size*.064)
+    for index, height in enumerate((.064, .15, .235, .15, .064)):
+        x = center+(index-2)*spacing
+        half = max(width/2, size*height/2)
+        box = ((x-width/2)*scale, (center-half)*scale,
+               (x+width/2)*scale, (center+half)*scale)
+        draw.rounded_rectangle(box, radius=width*scale/2,
+                               fill=color if index%2 == 0 else (255, 255, 255, 255))
     return image.resize((size, size), Image.Resampling.LANCZOS)
 
 
