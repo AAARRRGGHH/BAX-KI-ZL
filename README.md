@@ -8,7 +8,7 @@ I do not claim ownership of this project or regard it as my intellectual propert
 
 **AAARRRGGHH**, the project initiator, contributed the idea, musical goals, interaction concept, visual direction, feature decisions and extensive practical testing.
 
-**OpenAI Codex** carried out technical implementation under that direction: research, architecture, programming, debugging, automated tests, build tools, simulator and documentation. It was developed with AI assistance, not programmed solely by the project initiator. **KI** stands for *K?nstliche Intelligenz*, the German term for *artificial intelligence (AI)*. Its inclusion in the project name openly acknowledges that collaboration.
+**OpenAI Codex** carried out technical implementation under that direction: research, architecture, programming, debugging, automated tests, build tools, simulator and documentation. It was developed with AI assistance, not programmed solely by the project initiator. **KI** stands for *Kuenstliche Intelligenz*, the German term for *artificial intelligence (AI)*. Its inclusion in the project name openly acknowledges that collaboration.
 
 Existing libraries, fonts and board drivers retain their authorship and license notices.
 
